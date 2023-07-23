@@ -1,9 +1,9 @@
 const siteMetadata = {
-  title: 'Next.js Starter Blog',
-  author: 'Tails Azimuth',
-  headerTitle: 'TailwindBlog',
-  description: 'A blog created with Next.js and Tailwind.css',
-  language: 'en-us',
+  title: 'Front of the Line',
+  author: 'Trung Le',
+  headerTitle: 'Front of the Line',
+  description: 'Front of the Line: Front-End Development and Algorithmic Insights',
+  language: 'en-us, vn',
   theme: 'system', // system, dark or light
   siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
   siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
