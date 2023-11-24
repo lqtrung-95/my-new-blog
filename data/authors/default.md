@@ -4,17 +4,15 @@ avatar: /static/images/avatar.png
 occupation: Software Engineer
 company: Leading Global Fintech Company
 email: letrung95@gmail.com
-twitter: https://twitter.com/Twitter
-linkedin: https://www.linkedin.com
-github: https://github.com
+linkedin: https://www.linkedin.com/in/trungle-3195/
 ---
 
-Trung Le is a passionate software engineer with expertise in front-end development and a keen interest in algorithms. He holds a degree in Computer Science from the APCS of HCMUS - Vietnam, one of the top universities in Vietnam renowned for its strong foundation in the field.
+I am Trung Le, a passionate software engineer specializing in front-end development with a strong foundation in algorithms. Holding a degree in Computer Science from APCS of HCMUS - Vietnam, I have 5 years of industry experience.
 
-With 5 years of experience in the industry, Trung has been dedicated to pushing the boundaries of technology and delivering innovative solutions. Currently, he works as a software engineer at a leading global fintech company, where he leverages his skills and knowledge to create seamless user experiences and build robust front-end applications. He thrives in dynamic and fast-paced environments, constantly adapting to the ever-evolving world of technology.
+Currently employed at a leading global fintech company, I leverage my skills to create seamless user experiences and build robust front-end applications. Thriving in dynamic environments, I adapt to the ever-evolving world of technology.
 
-Driven by a deep curiosity for algorithms, Trung spends his free time exploring and improving his algorithmic skills. He believes that continuous learning is the key to personal and professional growth, and he actively seeks out opportunities to expand his knowledge and stay up-to-date with the latest industry trends.
+Driven by a deep curiosity for algorithms, I spend my free time exploring and improving my algorithmic skills. I believe in continuous learning for personal and professional growth, actively seeking opportunities to expand my knowledge and stay updated with industry trends.
 
-Trung's dedication to his craft extends beyond his professional life. He is constantly seeking ways to challenge himself and enhance his problem-solving abilities. Whether it's solving algorithmic puzzles or diving into complex coding challenges, Trung embraces every opportunity to sharpen his skills and broaden his understanding of software engineering.
+My dedication extends beyond my professional life. I constantly challenge myself, embracing every opportunity to sharpen my skills and broaden my understanding of software engineering.
 
-Through this blog, Trung shares his experiences, insights, and learnings in front-end development, algorithmic techniques, and the ever-changing landscape of the fintech industry. Join Trung on his journey of continuous improvement as he strives to expand his knowledge and inspire fellow software engineers.
+Through this blog, I share my experiences, insights, and learnings in front-end development, algorithmic techniques, and the evolving fintech industry. Join me on my journey of continuous improvement as I strive to inspire fellow software engineers.
