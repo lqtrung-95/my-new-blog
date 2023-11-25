@@ -255,7 +255,8 @@ def longest_consecutive(nums):
     return max_length
 ```
 
-The HashSet lookup and consecutive sequence counting both take O(n) time, resulting in an overall time complexity of O(n).
+When the algorithm finds a number that is the start of a consecutive sequence (i.e., num - 1 is not in the HashSet), it initiates a while loop to explore the consecutive sequence by incrementing the current number.
+Since each number is explored at most once, the overall time complexity remains linear, and the total time complexity is O(n).
 
 #### Summarize
 
