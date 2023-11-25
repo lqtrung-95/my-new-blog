@@ -1,6 +1,6 @@
 ---
 name: Trung Le
-avatar: /static/images/avatar.png
+avatar: /static/images/avatar-linkedin.jpeg
 occupation: Software Engineer
 company: Leading Global Fintech Company
 email: letrung95@gmail.com
