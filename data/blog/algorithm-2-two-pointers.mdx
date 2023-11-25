@@ -1,0 +1,379 @@
+---
+title: Algorithm 2 - Two Pointers
+date: '2023-07-29'
+tags: ['Algorithm', 'Leetcode', 'StudyTogether']
+draft: false
+summary: Solving Two Pointers problems - A Quick Guide
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+Explore the ins and outs of two pointers algorithms in our concise guide. Learn to effortlessly navigate through common challenges, unraveling the complexities with straightforward solutions. Elevate your problem-solving skills and conquer the world of two pointers effortlessly. 🚀
+
+- [Valid Palindrome (Easy)](#valid-palindrome-easy)
+  - [Examples](#examples)
+  - [Solutions](#solutions)
+    - [Clean and check the reversed string](#1-clean-and-check-the-reversed-string)
+    - [Two pointers](#2-two-pointers)
+- [Problem: 3Sum (Medium)](#problem-3sum-medium)
+  - [Examples](#examples-1)
+  - [Solutions](#solutions-1)
+    - [Brute Force](#1-brute-force)
+    - [Two Pointers](#2-two-pointers-1)
+- [Problem: Container With Most Water (Medium)](#problem-container-with-most-water-medium)
+  - [Examples](#examples-2)
+  - [Solutions](#solutions-2)
+    - [Brute Force](#1-brute-force-1)
+    - [Two Pointers](#2-two-pointers-2)
+- [Container With Most Water (Hard)](#container-with-most-water-hard)
+  - [Examples](#examples-3)
+  - [Solutions](#solutions-3)
+    - [Brute Force](#1-brute-force-2)
+    - [Two Pointers](#2-two-pointers-3)
+- [Wrap up](#wrap-up)
+
+## [Valid Palindrome (Easy)](https://leetcode.com/problems/valid-palindrome/)
+
+---
+
+A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+Given a string s, return **true** if it is a palindrome, or false otherwise.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+    Input: s = "A man, a plan, a canal: Panama"
+    Output: true
+    Explanation: "amanaplanacanalpanama" is a palindrome.
+  ```
+
+- Example 2:
+
+  ```js
+    Input: s = "race a car"
+    Output: false
+    Explanation: "raceacar" is not a palindrome.
+  ```
+
+- Example 3:
+  ```js
+    Input: s = " "
+    Output: true
+    Explanation: s is an empty string "" after removing non-alphanumeric characters.
+    Since an empty string reads the same forward and backward, it is a palindrome.
+  ```
+
+### Solutions:
+
+#### 1. Clean and check the reversed string
+
+We iterate through the given string, convert it to lowercase, and remove non-alphanumeric characters to create a cleaned string. We then check if this cleaned string is a palindrome by comparing it with its reverse.
+
+```python
+def isPalindrome(s):
+    # Convert to lowercase and remove non-alphanumeric characters
+    cleaned_str = ''.join(char.lower() for char in s if char.isalnum())
+
+    # Check if the cleaned string is equal to its reverse
+    return cleaned_str == cleaned_str[::-1]
+```
+
+- Time Complexity (TC): O(N), where N is the length of the input string. This is because we iterate through each character of the input string once.
+
+- Space Complexity (SC): O(N), where N is the length of the input string. This is due to the space needed to store the cleaned string.
+
+#### 2. Two pointers
+
+Another way which is we follow a similar preprocessing step to obtain the cleaned string. However, instead of comparing the entire string with its reverse, we use two pointers starting from the beginning and end of the cleaned string to efficiently check for palindrome properties in a single pass.
+
+```python
+def isPalindrome(s):
+    # Convert to lowercase and remove non-alphanumeric characters
+    cleaned_str = ''.join(char.lower() for char in s if char.isalnum())
+
+    # Use two pointers to check if the string is a palindrome
+    left, right = 0, len(cleaned_str) - 1
+    while left < right:
+        if cleaned_str[left] != cleaned_str[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+```
+
+- Time Complexity: O(N)
+- Space Complexity: O(N)
+
+#### Summarize
+
+So after this first problem, you can have a rough idea how the two pointers work. It's a very common technique that can help you solve a lot of problems with high efficiency. Let's move on to the next problem!
+
+## [Problem: 3Sum (Medium)](https://leetcode.com/problems/3sum)
+
+Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.
+
+Notice that the solution set must not contain duplicate triplets.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+    Input: nums = [-1,0,1,2,-1,-4]
+    Output: [[-1,-1,2],[-1,0,1]]
+    Explanation:
+    nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.
+    nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.
+    nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.
+    The distinct triplets are [-1,0,1] and [-1,-1,2].
+    Notice that the order of the output and the order of the triplets does not matter.
+  ```
+
+- Example 2:
+
+  ```js
+    Input: nums = [0,1,1]
+    Output: []
+    Explanation: The only possible triplet does not sum up to 0.
+  ```
+
+- Example 3:
+
+  ```js
+    Input: nums = [0,0,0]
+    Output: [[0,0,0]]
+    Explanation: The only possible triplet sums up to 0.
+  ```
+
+#### 1. Brute Force
+
+We can use three nested loops to generate all possible triplets and check if their sum equals zero. However, this approach has a time complexity of O(N^3), making it inefficient.
+
+```python
+def threeSumBruteForce(nums):
+    result = []
+    n = len(nums)
+    for i in range(n - 2):
+        for j in range(i + 1, n - 1):
+            for k in range(j + 1, n):
+                if nums[i] + nums[j] + nums[k] == 0:
+                    triplet = sorted([nums[i], nums[j], nums[k]])
+                    if triplet not in result:
+                        result.append(triplet)
+    return result
+```
+
+- Time Complexity (TC): O(N^3), where N is the length of the input array.
+
+- Space Complexity (SC): O(1), no extra space is used.
+
+#### 2. Two Pointers
+
+A more optimized solution involves sorting the array and using two pointers to traverse it. We iterate through the array, fixing one element and using two pointers to find the other two elements such that their sum equals zero.
+
+```python
+def threeSum(nums):
+    result = []
+    nums.sort()
+    n = len(nums)
+
+    for i in range(n - 2):
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue
+
+        left, right = i + 1, n - 1
+        target = -nums[i]
+
+        while left < right:
+            curr_sum = nums[left] + nums[right]
+
+            if curr_sum == target:
+                result.append([nums[i], nums[left], nums[right]])
+
+                left += 1
+                right -= 1
+
+                while left < right and nums[left] == nums[left - 1]:
+                    left += 1
+
+                while left < right and nums[right] == nums[right + 1]:
+                    right -= 1
+
+            elif curr_sum < target:
+                left += 1
+            else:
+                right -= 1
+
+    return result
+```
+
+- Time Complexity (TC): O(N^2), where N is the length of the input array.
+
+- Space Complexity (SC): O(1), no extra space is used.
+
+#### Summarize
+
+In this problem, we explored a brute-force solution with cubic time complexity and an optimized solution utilizing the two-pointers technique. The latter significantly improves efficiency, making it suitable for larger arrays. The two-pointers approach demonstrates the power of optimizing algorithms for better performance. Let's continue refining our problem-solving skills with the next challenge!
+
+## [Problem: Container With Most Water (Medium)](https://leetcode.com/problems/container-with-most-water/)
+
+You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]).
+
+Find two lines that, together with the x-axis, form a container, such that the container contains the most water.
+
+Return the maximum amount of water a container can store.
+
+Example 1:
+
+```js
+    Input: height = [1,8,6,2,5,4,8,3,7]
+    Output: 49
+    Explanation: The above vertical lines are represented by the array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49.
+```
+
+Example 2:
+
+```js
+Input: height = [1, 1]
+Output: 1
+```
+
+#### 1. Brute Force
+
+We can use two nested loops to calculate the area between each pair of lines. This method has a time complexity of O(N^2), where N is the length of the input array.
+
+```python
+def maxAreaBruteForce(height):
+    max_area = 0
+    n = len(height)
+
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            h = min(height[i], height[j])
+            w = j - i
+            max_area = max(max_area, h * w)
+
+    return max_area
+```
+
+- Time Complexity (TC): O(N^2), where N is the length of the input array.
+
+- Space Complexity (SC): O(1), no extra space is used.
+
+#### 2. Two Pointers
+
+A more optimized solution involves using two pointers, initially positioned at the start and end of the array. We calculate the area between the lines formed by the two pointers, then move the pointers towards each other. This method has a time complexity of O(N), where N is the length of the input array.
+
+```python
+def maxArea(height):
+    max_area = 0
+    left, right = 0, len(height) - 1
+
+    while left < right:
+        h = min(height[left], height[right])
+        w = right - left
+        max_area = max(max_area, h * w)
+
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+
+    return max_area
+```
+
+- Time Complexity (TC): O(N), where N is the length of the input array.
+
+- Space Complexity (SC): O(1), no extra space is used.
+
+#### Summarize
+
+The problem involves finding the maximum water container area between vertical lines. The brute-force solution has a quadratic time complexity, while the optimized two-pointer approach achieves linear time complexity. The latter is more efficient for larger arrays, highlighting the importance of algorithmic optimization. Let's continue honing our problem-solving skills with the next challenge! 🤝
+
+## [Container With Most Water (Hard)](https://leetcode.com/problems/container-with-most-water/description/)
+
+Given an integer array height representing the height of vertical lines, find two lines that, together with the x-axis, form a container containing the most water.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+    Input: height = [1,8,6,2,5,4,8,3,7]
+    Output: 49
+    Explanation: The array represents vertical lines, and the max water container area is 49.
+
+  ```
+
+- Example 2:
+
+  ```js
+  Input: nums = [0,1,1]
+  Output: []
+  Explanation: The only possible triplet does not sum up to 0.
+  ```
+
+- Example 3:
+
+  ```js
+  Input: height = [1, 1]
+  Output: 1
+  ```
+
+#### 1. Brute Force
+
+Calculate the area between each pair of lines using two nested loops, resulting in a quadratic time complexity of O(N^2).
+
+```python
+def maxAreaBruteForce(height):
+    max_area = 0
+    n = len(height)
+
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            h = min(height[i], height[j])
+            w = j - i
+            max_area = max(max_area, h * w)
+
+    return max_area
+```
+
+- Time Complexity: O(N^2)
+- Space Complexity: O(1)
+
+#### 2. Two Pointers
+
+Utilize two pointers to traverse the array efficiently, calculating the water container area by moving the pointers towards each other.
+
+```python
+def maxArea(height):
+    max_area = 0
+    left, right = 0, len(height) - 1
+
+    while left < right:
+        h = min(height[left], height[right])
+        w = right - left
+        max_area = max(max_area, h * w)
+
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+
+    return max_area
+```
+
+- Time Complexity: O(N)
+- Space Complexity: O(1)
+
+#### Summarize
+
+To find the maximum water container area between vertical lines, the brute-force solution has quadratic time complexity, while the optimized two-pointer approach achieves linear time complexity. The latter is more efficient for larger arrays, emphasizing the importance of algorithmic optimization. 🚀
+
+## Wrap up
+
+🚀 Embracing the power of Two Pointers, we've elevated our problem-solving skills. As we venture further into the world of algorithms, let's dive into more techniques, unraveling the intricacies of efficient problem-solving together! 🌐🧠
