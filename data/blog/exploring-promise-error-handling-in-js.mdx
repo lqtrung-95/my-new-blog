@@ -1,0 +1,72 @@
+---
+title: 'Exploring Promise Error Handling in JavaScript 🚀'
+date: '2023-09-15'
+tags: ['Front-End', 'Knowledge', 'JavaScript']
+draft: false
+summary: "Let's unravel the distinctions between two common promise error handling patterns: `promise.then().catch` and `promise.then(resolve, reject)`."
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+# Exploring Promise Error Handling in JavaScript 🚀
+
+In JavaScript, promises are a powerful tool for managing asynchronous operations. Let's unravel the distinctions between two common promise error handling patterns: `promise.then().catch` and `promise.then(resolve, reject)`.
+
+## The Example: A Promise Race Function 🏁
+
+Consider this snippet of a `promiseRace` function:
+
+```js
+export default function promiseRace(iterable) {
+  return new Promise((resolve, reject) => {
+    if (iterable.length === 0) {
+      return
+    }
+
+    iterable.forEach((item) =>
+      // Incorrect to use `catch()`, use onReject in `then()`.
+      Promise.resolve(item).then(resolve).catch(reject)
+    )
+  })
+}
+```
+
+This function resolves or rejects as soon as the first promise in the iterable settles.
+
+## Unpacking promise.then().catch 🤔
+
+The `.then().catch` pattern is widely used, but it can be tricky with mixed promises:
+
+```js
+promiseRace([Promise.reject(42), Promise.resolve(2)])
+  .then((result) => {
+    console.log(result) // Outputs: 2
+  })
+  .catch((error) => {
+    console.error(error) // This block will not be executed
+  })
+```
+
+In this scenario, the .then() block executes before .catch(), leading to unexpected behavior. This is due to the asynchronous nature where .then() is scheduled ahead of .catch().
+
+## Embracing promise.then(resolve, reject) for Precision ✅
+
+To gain more control, especially when confronted with a mix of promises, opt for the `promise.then(resolve, reject)` pattern:
+
+```js
+promiseRace([Promise.reject(42), Promise.resolve(2)]).then(
+  (result) => {
+    console.log(result) // This block will not be executed
+  },
+  (error) => {
+    console.error(error) // Outputs: 42
+  }
+)
+```
+
+By utilizing separate callbacks within `.then()`, you gain precision over the handling of fulfilled and rejected promises within the iterable. This approach ensures expected behavior in diverse asynchronous scenarios.
+
+## Conclusion 🎉
+
+Understanding the differences between `promise.then().catch` and `promise.then(resolve, reject)` is vital for robust promise handling. The latter pattern provides precise control, ensuring expected behavior in diverse asynchronous scenarios. Choose the pattern that aligns with your code's specific needs for a seamless asynchronous journey. 🚀
