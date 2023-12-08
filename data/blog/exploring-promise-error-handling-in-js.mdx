@@ -13,37 +13,28 @@ In JavaScript, promises are a powerful tool for managing asynchronous operations
 
 ## The Example: A Promise Race Function 🏁
 
-Consider this snippet of a `promiseRace` function:
-
-```js
-export default function promiseRace(iterable) {
-  return new Promise((resolve, reject) => {
-    if (iterable.length === 0) {
-      return
-    }
-
-    iterable.forEach((item) =>
-      // Incorrect to use `catch()`, use onReject in `then()`.
-      Promise.resolve(item).then(resolve).catch(reject)
-    )
-  })
-}
-```
-
-This function resolves or rejects as soon as the first promise in the iterable settles.
+This promise race function can return different results based on the promise error handling pattern we use.
 
 ## Unpacking promise.then().catch 🤔
 
 The `.then().catch` pattern is widely used, but it can be tricky with mixed promises:
 
 ```js
+function promiseRace(iterable) {
+  return new Promise((resolve, reject) => {
+    if (iterable.length === 0) {
+      return
+    }
+
+    iterable.forEach((item) => Promise.resolve(item).then(resolve).catch(reject))
+  })
+}
+
 promiseRace([Promise.reject(42), Promise.resolve(2)])
-  .then((result) => {
-    console.log(result) // Outputs: 2
-  })
-  .catch((error) => {
-    console.error(error) // This block will not be executed
-  })
+
+// The expected result is 2 because Promise.resolve(2) is scheduled
+// before Promise.reject(42) in the event loop. This asynchronous
+// behavior occurs because .then() is scheduled ahead of .catch().
 ```
 
 In this scenario, the .then() block executes before .catch(), leading to unexpected behavior. This is due to the asynchronous nature where .then() is scheduled ahead of .catch().
@@ -53,14 +44,34 @@ In this scenario, the .then() block executes before .catch(), leading to unexpec
 To gain more control, especially when confronted with a mix of promises, opt for the `promise.then(resolve, reject)` pattern:
 
 ```js
-promiseRace([Promise.reject(42), Promise.resolve(2)]).then(
-  (result) => {
-    console.log(result) // This block will not be executed
-  },
-  (error) => {
-    console.error(error) // Outputs: 42
-  }
-)
+function promiseRace(iterable) {
+  return new Promise((resolve, reject) => {
+    if (iterable.length === 0) {
+      return
+    }
+
+    iterable.forEach((item) =>
+      // It's important to reject() rejected promises in the .then() call (via the second callback parameter)
+      // Not rejecting within .catch(). The approach below may seem similar but fails with mixed promises.
+      Promise.resolve(item).then(
+        // On fulfillment, invoke resolve
+        (value) => resolve(value),
+        // On rejection, invoke reject
+        (reason) => reject(reason)
+      )
+    )
+  })
+}
+
+promiseRace([Promise.reject(42), Promise.resolve(2)])
+
+// The expected result is 42 because Promise.reject(42) is scheduled
+// before Promise.resolve(2) in the event loop. The race is won by
+// the first settled promise, which is the rejection.
+
+// Note: .catch() is scheduled and does not run immediately after .then().
+// For immediately settled promises, .then() runs before any .catch(),
+// resulting in the overall Promise being fulfilled with 2 instead of rejected with 42.
 ```
 
 By utilizing separate callbacks within `.then()`, you gain precision over the handling of fulfilled and rejected promises within the iterable. This approach ensures expected behavior in diverse asynchronous scenarios.
