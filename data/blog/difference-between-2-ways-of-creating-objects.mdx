@@ -1,0 +1,59 @@
+---
+title: Difference between creating new objects by {} and Object.create(null)
+date: '2023-09-08'
+tags: ['Front-End', 'Knowledge', 'JavaScript']
+draft: false
+summary: 'In JavaScript, when we want to make an object, there are different ways to do it. 🧐'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+In JavaScript, when we want to make an object, there are different ways to do it. 🧐 Let's explore two common methods to do it and the difference between them.
+
+## 1. Curly Braces `{}`:
+
+When we use curly braces to make an object like `let myObject = {};`, we get a default set of properties and methods that come with every object. 🏠 These are like the "standard features" that every object gets from JavaScript.
+
+Imagine it's like buying a new smartphone. 📱 You get the usual apps and features that come with every phone. Similarly, when you create an object with curly braces, you get some standard things, like a `toString` method, whether you asked for them or not!
+
+**Example:**
+
+```js
+// Creating an object with curly braces
+let myObject = {
+  property1: 'value1',
+  property2: 'value2',
+}
+
+// It inherits default properties from Object.prototype
+console.log(myObject.toString()) // Outputs: [object Object]
+```
+
+## 2. Object.create(null):
+
+Now, if you want to create an object without all those default things, you can use Object.create(null). 🚀 This is like getting a brand new, empty backpack where you can decide what to put in without any surprises.
+
+It's like customizing your own phone. 🛠️ You pick and choose what apps you want without any pre-installed ones. Similarly, Object.create(null) gives you a fresh object without inherited properties, so you can have more control.
+
+**Example:**
+
+```js
+// Creating an object with Object.create(null)
+let cleanObject = Object.create(null)
+
+// No inherited properties, a clean slate
+console.log(cleanObject.toString) // Outputs: undefined
+```
+
+## Why does it matter? 🤔
+
+Imagine you're building a cool robot with different parts. 🤖 If you use curly braces, it's like getting some default parts that you might not need. But with `Object.create(null)`, it's like starting with a blank canvas to build your robot exactly the way you want.
+
+In the code example you shared, this.\_events = `Object.create(null)`; is a way of saying, "I want an object without any extra stuff, just the things I put in it."
+
+One common use case for `Object.create(null)` is when you want to use an object as a dictionary. 📖 Since it doesn't have any inherited properties, you can use it to store key-value pairs without worrying about name collisions with inherited properties.
+
+For example, if you want to store a key called `toString`, you can't do that with curly braces because it's already taken by the default toString method. But with `Object.create(null)`, you can do it without any issues.
+
+So, whether you prefer the default features or want a clean slate to build your own, JavaScript gives you options with curly braces and `Object.create(null)`. 🌟 Choose the one that fits your project best!
