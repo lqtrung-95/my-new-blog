@@ -1,0 +1,80 @@
+---
+title: 'Unveiling the Power of Set and Map in JavaScript 🌐🗺️'
+date: '2023-10-15'
+tags: ['Front-End', 'Knowledge', 'JavaScript']
+draft: false
+summary: "JavaScript's Map: Versatile key-value pairs. Set: Distinct, ordered collections. Enhance data structures in seconds! 🗺️🔄🚀"
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+JavaScript's Set and Map are versatile data structures, each serving distinct purposes in managing unique values and key-value pairs. Let's delve into their features, practical use cases, and how they can elevate your coding experience!
+
+## Set: Taming Duplicates with Uniqueness 🌈
+
+The **Set** in JavaScript is your go-to solution for handling collections of unique values. One remarkable characteristic is that the order in which elements are added to the Set is preserved when you convert the **Set** to an array using **Array.from(set)**.
+
+```js
+const uniqueNumbers = new Set([1, 2, 3, 3, 4, 5])
+const uniqueArray = Array.from(uniqueNumbers)
+// Result: [1, 2, 3, 4, 5]
+```
+
+## Practical Use Case: Removing Duplicates
+
+Consider a scenario where you receive user input that may contain duplicate entries. Utilizing a Set simplifies the process of deduplication.
+
+```js
+const userInput = [10, 20, 30, 10, 40, 50, 30]
+const uniqueInputSet = new Set(userInput)
+const deduplicatedArray = Array.from(uniqueInputSet)
+// Result: [10, 20, 30, 40, 50]
+```
+
+## Map: Navigating Key-Value Relationships 🗝️📊
+
+Enter the **Map** — a powerhouse for managing key-value pairs. One notable difference from a regular object is that a **Map** allows keys of any type, whereas object keys are limited to strings.
+
+```js
+const userRoles = new Map()
+userRoles.set('John', 'Admin').set('Jane', 'Editor')
+console.log(userRoles.get('John')) // Output: Admin
+
+const mixedTypeMap = new Map()
+
+// Adding entries with different key types
+mixedTypeMap.set('name', 'John')
+mixedTypeMap.set(42, 'Answer to Everything')
+mixedTypeMap.set(true, 'Boolean Key')
+mixedTypeMap.set({ key: 'objectKey' }, 'Object Key')
+
+// Retrieving values using keys of different types
+console.log(mixedTypeMap.get('name')) // Output: John
+console.log(mixedTypeMap.get(42)) // Output: Answer to Everything
+console.log(mixedTypeMap.get(true)) // Output: Boolean Key
+console.log(mixedTypeMap.get({ key: 'objectKey' })) // Output: Object Key
+```
+
+## Practical Use Case: User Roles and Permissions
+
+Imagine a user management system where you need to assign roles to users. A Map simplifies the association of users with their respective roles.
+
+```js
+const userRoles = new Map([
+  ['John', 'Admin'],
+  ['Jane', 'Editor'],
+  ['Sam', 'Viewer'],
+])
+
+function getUserRole(username) {
+  return userRoles.get(username) || 'Guest'
+}
+
+console.log(getUserRole('Jane')) // Output: Editor
+console.log(getUserRole('Tom')) // Output: Guest
+```
+
+## Conclusion
+
+In conclusion, Sets and Maps in JavaScript not only provide elegant solutions for managing distinct values and key-value associations but also streamline common tasks in real-world scenarios. Whether it's deduplicating user input, efficiently associating roles with users, or preserving order in collections, Sets and Maps enhance the clarity and efficiency of your code. 🚀✨
