@@ -1,0 +1,76 @@
+---
+title: 'Understanding Plain Objects in JavaScript and Checking for Them 🧐'
+date: '2023-09-22'
+tags: ['Front-End', 'Knowledge', 'JavaScript']
+draft: false
+summary: 'Distinguish plain objects from complex ones for robust data validation in web forms. Explore the importance and practical use cases.'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+In JavaScript, objects play a fundamental role in representing and organizing data. However, not all objects are created equal, and distinguishing plain objects from others can be crucial in certain scenarios. This article explores the concept of plain objects and provides two different functions to check whether a given object is plain.
+
+## Plain Objects in JavaScript 📜
+
+A plain object in JavaScript is a simple key-value pair structure created using the literal syntax **{ }** or the Object constructor. These objects are often used for basic data storage and manipulation. One characteristic of plain objects is that they do not inherit from custom prototypes, making them distinct from objects with more complex inheritance chains.
+
+```js
+const plainObject = { key: 'value', number: 42 }
+// plainObject is a plain object
+
+function CustomObject() {
+  this.customProperty = 'I am custom!'
+}
+
+const customInstance = new CustomObject()
+// customInstance is not a plain object
+```
+
+## Checking for Plain Objects: The Basics ✅
+
+Let's start by examining a straightforward function to check if an object is plain:
+
+```js
+function isPlainObject(value) {
+  if (value == null) {
+    return false
+  }
+
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === null || prototype === Object.prototype
+}
+```
+
+This function checks whether the provided value is null or has a prototype of either **null** or **Object.prototype**. If any of these conditions hold, the function returns true, indicating that the object is plain.
+
+## An Alternative Approach 🔄
+
+Now, let's explore an alternative implementation, inspired by Lodash's isPlainObject function:
+
+```js
+export function isPlainObjectAlternative(value) {
+  if (!isObject(value)) {
+    return false
+  }
+
+  if (Object.getPrototypeOf(value) === null) {
+    return true
+  }
+
+  let proto = value
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto)
+  }
+
+  return Object.getPrototypeOf(value) === proto
+}
+```
+
+This alternative introduces additional checks, including a specific check for objects created via **Object.create(null)**. It traverses the prototype chain to find the root prototype and then compares it to the object's prototype.
+
+## Choosing the Right Approach 🤔
+
+The choice between these two functions depends on your specific needs. The simpler isPlainObject function might suffice for most cases, providing a quick and efficient check. On the other hand, the alternative implementation offers more thorough handling of objects created with **Object.create(null)** but comes with a slightly higher complexity.
+
+Consider your use case, the performance requirements of your application, and whether the additional checks in the alternative function are necessary for your specific scenario. Both functions offer reliable ways to determine whether an object is a plain object in JavaScript.
