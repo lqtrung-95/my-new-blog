@@ -1,0 +1,204 @@
+---
+title: 'Front-End Interview Prep: Must-Know Questions for a Stellar Performance (P1)🚀'
+date: '2023-11-15'
+tags: ['Front-End', 'Knowledge', 'JavaScript']
+draft: false
+summary: 'This article provides essential guidance for individuals preparing for front-end developer interviews, including a list of must-know questions and answers. ✅'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+## Table of Contents
+
+- [1. How do you handle serving pages for browsers with limited features? What techniques or processes do you employ?](#1-how-do-you-handle-serving-pages-for-browsers-with-limited-features-what-techniques-or-processes-do-you-employ)
+- [2. What is `"use strict";`?](#2-what-is-use-strict)
+  - [Advantages](#advantages)
+  - [Disadvantages](#disadvantages)
+- [3. What's the difference between an "attribute" and a "property"?](#3-whats-the-difference-between-an-attribute-and-a-property)
+- [4. What's the difference between feature detection, feature inference, and using the UA string?](#4-whats-the-difference-between-feature-detection-feature-inference-and-using-the-ua-string)
+  - [Feature Detection](#feature-detection)
+  - [Feature Inference](#feature-inference)
+  - [UA String](#ua-string)
+- [5. What's the difference between "resetting" and "normalizing" CSS?](#5-whats-the-difference-between-resetting-and-normalizing-css)
+  - [Which to choose and why?](#which-to-choose-and-why)
+- [6. Why would you use a `srcset` attribute in an image tag?](#6-why-would-you-use-a-srcset-attribute-in-an-image-tag)
+  - [Process of Evaluation by the Browser](#process-of-evaluation-by-the-browser)
+- [7. Are you familiar with styling SVG?](#7-are-you-familiar-with-styling-svg)
+- [8. Could you provide an illustration of a currying function and elaborate on the advantages that this syntax provides?](#8-could-you-provide-an-illustration-of-a-currying-function-and-elaborate-on-the-advantages-that-this-syntax-provides)
+- [9. Can you give an example of an `@media` property other than `screen`?](#9-can-you-give-an-example-of-an-media-property-other-than-screen)
+- [Conclusion](#conclusion)
+
+## 1. How do you handle serving pages for browsers with limited features? What techniques or processes do you employ?
+
+- Employing graceful degradation, involving the construction of an application primarily for modern browsers while ensuring it remains functional in older ones.
+- Implementing progressive enhancement, a practice of building a baseline user experience and adding functional enhancements when supported by the browser.
+- Utilizing [caniuse.com](https://caniuse.com/) to verify feature support across different browsers.
+- Automatic vendor prefix insertion through Autoprefixer.
+- Employing feature detection using [Modernizr](https://modernizr.com/).
+- Utilizing CSS feature queries via `@supports`.
+
+## 2. What is `"use strict";`?
+
+`'use strict'` is a statement used to enable strict mode for entire scripts or individual functions. Strict mode is a way to opt into a restricted variant of JavaScript.
+
+### Advantages
+
+- Makes it impossible to accidentally create global variables.
+- Ensures assignments that would otherwise silently fail throw an exception.
+- Causes attempts to delete undeletable properties to throw an exception.
+- Requires that function parameter names be unique.
+- `this` is `undefined` in the global context.
+- Catches some common coding bloopers, throwing exceptions.
+- Disables features that are confusing or poorly thought out.
+
+### Disadvantages
+
+- Omission of certain features that some developers might be used to.
+- No access to `function.caller` and `function.arguments`.
+- Concatenation of scripts written in different strict modes might cause issues.
+
+Overall, the benefits outweigh the disadvantages, and there is generally no need to rely on the features that strict mode prohibits. It is advisable to use strict mode by default.
+
+## 3. What's the difference between an "attribute" and a "property"?
+
+Attributes are defined in the HTML markup, while properties are defined in the DOM. To illustrate the difference, consider a text field in our HTML: `<input type="text" value="Hello">`.
+
+```javascript
+const input = document.querySelector('input')
+console.log(input.getAttribute('value')) // Hello
+console.log(input.value) // Hello
+```
+
+After changing the value of the text field by adding "World!" to it, the behavior is as follows:
+
+```javascript
+console.log(input.getAttribute('value')) // Hello
+console.log(input.value) // Hello World!
+```
+
+In this example, the attribute reflects the initial HTML state, while the property reflects the current state of the DOM element.
+
+## 4. What's the difference between feature detection, feature inference, and using the UA string?
+
+### Feature Detection
+
+Feature detection involves determining whether a browser supports a specific block of code and executing different code based on that support. This ensures a working experience in all browsers, preventing crashes or errors. For example:
+
+```javascript
+if ('geolocation' in navigator) {
+  // Can use navigator.geolocation
+} else {
+  // Handle lack of feature
+}
+```
+
+[Modernizr](https://modernizr.com/) is a useful library for feature detection.
+
+### Feature Inference
+
+Feature inference checks for a feature, similar to feature detection, but assumes it will also exist. For instance:
+
+```javascript
+if (document.getElementsByTagName) {
+  element = document.getElementById(id)
+}
+```
+
+Feature inference is not recommended as it is less foolproof than feature detection.
+
+**UA String**
+
+The UA (User Agent) string is a browser-reported string that helps identify the application type, operating system, software vendor, or software version of the requesting software user agent. It can be accessed via **navigator.userAgent**. However, the string is complex to parse and can be spoofed. For example, Chrome reports both as Chrome and Safari. To detect Safari, one has to check for the Safari string and the absence of the Chrome string. It's advisable to avoid relying on this method.
+
+## 5. What's the difference between "resetting" and "normalizing" CSS?
+
+### Which would you choose, and why?
+
+| Term        | Definition                                                                                                                                                                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resetting   | Resetting is meant to strip all default browser styling on elements. For example, margins, paddings, font-sizes of all elements are reset to be the same. You will have to redeclare styling for common typographic elements. |
+| Normalizing | Normalizing preserves useful default styles rather than "unstyling" everything. It also corrects bugs for common browser dependencies.                                                                                        |
+
+### Which to choose and why?
+
+Choose resetting when you need to have a very customized or unconventional site design, and you want to start styling from a clean slate without any default styling. This is particularly useful when you prefer complete control over styling and do not need to preserve default styles.
+
+## 6. Why would you use a `srcset` attribute in an image tag?
+
+You would use the **`srcset`** attribute when you want to serve different images to users based on their device display width. This allows you to enhance the user experience by serving higher quality images to devices with retina displays, while serving lower resolution images to low-end devices to improve performance and reduce data usage.
+
+For example: `<img srcset="small.jpg 500w, medium.jpg 1000w, large.jpg 2000w" src="..." alt="">` tells the browser to display the small, medium, or large `.jpg` graphic depending on the client's resolution. The values in the `srcset` attribute represent the image name and the width of the image in pixels.
+
+### Process of Evaluation by the Browser
+
+- For a device width of 320px:
+
+  - 500 / 320 = 1.5625
+  - 1000 / 320 = 3.125
+  - 2000 / 320 = 6.25
+
+- If the client's resolution is 1x, the closest is 1.5625, and `500w` corresponding to `small.jpg` will be selected.
+
+- If the resolution is retina (2x), the browser will choose the closest resolution above the minimum. It won't choose `500w` (1.5625) because it is greater than 1, opting for the image with a resulting ratio closer to 2, which is `1000w` (3.125).
+
+**`srcset`** addresses the need to serve smaller image files to narrow screen devices and allows the selection of different resolution images for high-density/low-density screens.
+
+## 7. Are you familiar with styling SVG?
+
+Yes, there are various methods to style SVG (Scalable Vector Graphics), including inline CSS, embedded CSS sections, or external CSS files. While inline CSS is commonly used in most SVGs on the web, each method has its own set of advantages and disadvantages.
+
+Basic coloring of SVG shapes involves setting the `fill` and `stroke` attributes. The `fill` attribute determines the color inside the SVG object, while the `stroke` attribute sets the color of the line drawn around the object. Common CSS color naming schemes, such as color names (e.g., `red`), RGB values (e.g., `rgb(255,0,0)`), Hex values, and RGBA values, can be used.
+
+For example, the following SVG code:
+
+```xml
+<rect x="10" y="10" width="100" height="100" stroke="blue" fill="purple" fill-opacity="0.5" stroke-opacity="0.8" />
+
+```
+
+The fill="purple" in the above example is a presentational attribute. Interestingly, unlike inline styles **(e.g., style="fill: purple")**, presentational attributes can be overridden by CSS styles defined in a stylesheet. For instance, a CSS rule like `svg { fill: blue; }` will override the purple fill specified in the SVG element.
+
+## 8. Could you provide an illustration of a currying function and elaborate on the advantages that this syntax provides?
+
+Currying is a design pattern in which a function with multiple parameters is decomposed into several functions. When these functions are invoked sequentially, they gradually gather all the necessary parameters one at a time. This approach proves beneficial in enhancing the readability and composability of code written in a functional style. It's crucial to emphasize that for a function to undergo currying, it must initially exist as a single function and then be transformed into a series of functions, each accepting a single parameter.
+
+```javascript
+function curry(fn) {
+if (fn.length === 0) {
+return fn;
+  }
+function _curried(depth, args) {
+returnfunction (newArgument) {
+if (depth - 1 === 0) {
+return fn(...args, newArgument);
+      }
+return _curried(depth - 1, [...args, newArgument]);
+    };
+  }
+return _curried(fn.length, []);
+}
+function add(a, b) {
+return a + b;
+}
+var curriedAdd = curry(add);
+var addFive = curriedAdd(5);
+var result = [0, 1, 2, 3, 4, 5].map(addFive); // [5, 6, 7, 8, 9, 10]
+```
+
+## 9. Can you give an example of an `@media` property other than `screen`?
+
+There are four types of **`@media`** properties (including **`screen`**):
+
+- **`all`**: for all media type devices
+- **`print`**: for printers
+- **`speech`**: for screen readers that "reads" the page out loud
+- **`screen`**: for computer screens, tablets, smart-phones etc.
+
+Here is an example of **`print`** media type's usage:
+
+`@media print { body { color: black; }}`
+
+## Conclusion
+
+That wraps up Part 1! 🎉 I hope you had a great time exploring these concepts and maybe even learned a thing or two. 🚀 Exciting things await in Part 2, so stay tuned! 😊 Until then, happy coding and see you soon! 👋👩‍💻👨‍💻
