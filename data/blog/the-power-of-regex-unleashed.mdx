@@ -1,0 +1,79 @@
+---
+title: 'The Power of Regex Unleashed! ✨🔍'
+date: '2023-12-02'
+tags: ['Knowledge', 'Guide', 'StudyTogether']
+draft: false
+summary: 'Regular expressions, also known as regex, are powerful tools for pattern matching and text manipulation. 🎯'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+# The Power of Regex Unleashed! ✨🔍
+
+Regular expressions, also known as regex, are powerful tools for pattern matching and text manipulation. 🎯
+
+## What is Regex?
+
+Regex is a sequence of characters that defines a search pattern. It can be used to match, search, and manipulate text based on specific patterns. 🧩
+
+## Why Use Regex?
+
+Regex can be incredibly useful in various scenarios, such as:
+
+- Validating input data
+- Extracting specific information from text
+- Replacing or modifying text
+- Searching for patterns in large datasets
+
+## Basic Regex Syntax
+
+Regex patterns are composed of a combination of characters and special symbols. Here are some commonly used symbols:
+
+- `.`: Matches any single character.
+- `*`: Matches zero or more occurrences of the preceding character.
+- `+`: Matches one or more occurrences of the preceding character.
+- `[]`: Matches any single character within the brackets.
+- `^`: Matches the start of a line.
+- `$`: Matches the end of a line.
+
+## Examples
+
+Let's look at a few examples to understand how regex works:
+
+- To match any email address, you can use the pattern `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`.
+
+  - Breakdown:
+    - `^`: Matches the start of the line.
+    - `[a-zA-Z0-9._%+-]+`: Matches one or more occurrences of any letter, digit, dot, underscore, percent, plus, or minus.
+    - `@`: Matches the "@" symbol.
+    - `[a-zA-Z0-9.-]+`: Matches one or more occurrences of any letter, digit, dot, or hyphen.
+    - `\.`: Matches a dot.
+    - `[a-zA-Z]{2,}`: Matches two or more occurrences of any letter.
+    - `$`: Matches the end of the line.
+
+- To extract all URLs from a text, you can use the pattern `(https?|ftp)://[^\s/$.?#].[^\s]*`.
+
+  - Breakdown:
+    - `(https?|ftp)`: Matches either "http", "https", or "ftp".
+    - `://`: Matches "://" literally.
+    - `[^\s/$.?#]`: Matches any character except whitespace, "/", "$", ".", "?", or "#".
+    - `.`: Matches a dot.
+    - `[^\s]*`: Matches zero or more occurrences of any character except whitespace.
+
+- To format phone numbers in a consistent way, you can use the pattern `(\d{3})(\d{3})(\d{4})` and the replacement string `($1) $2-$3`.
+  - Breakdown:
+    - (\d{3}): This part of the regex matches three consecutive digits. The \d represents any digit from 0 to 9, and the {3} specifies that we want exactly three occurrences of the preceding pattern. The parentheses () are used to capture this group of three digits.
+    - (\d{3}): This part of the regex is similar to the previous one. It also matches three consecutive digits and captures them in a group.
+    - (\d{4}): This part of the regex matches four consecutive digits and captures them in a group.
+
+```javascript
+const phoneNumber = '1234567890'
+const formattedPhoneNumber = phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+
+console.log(formattedPhoneNumber) // Output: (123) 456-7890
+```
+
+## Conclusion
+
+Regex is a powerful tool that can save you time and effort when working with text. By mastering regex, you can unlock a whole new level of text manipulation possibilities. So go ahead, dive into the world of regex and unleash its power! 💪🚀
