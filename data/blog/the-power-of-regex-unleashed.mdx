@@ -63,9 +63,9 @@ Let's look at a few examples to understand how regex works:
 
 - To format phone numbers in a consistent way, you can use the pattern `(\d{3})(\d{3})(\d{4})` and the replacement string `($1) $2-$3`.
   - Breakdown:
-    - (\d{3}): This part of the regex matches three consecutive digits. The \d represents any digit from 0 to 9, and the {3} specifies that we want exactly three occurrences of the preceding pattern. The parentheses () are used to capture this group of three digits.
-    - (\d{3}): This part of the regex is similar to the previous one. It also matches three consecutive digits and captures them in a group.
-    - (\d{4}): This part of the regex matches four consecutive digits and captures them in a group.
+    - `(\d{3})`: This part of the regex matches three consecutive digits. The `\d` represents any digit from `0` to `9`, and the `{3}` specifies that we want exactly three occurrences of the preceding pattern. The parentheses `()` are used to capture this group of three digits.
+    - `(\d{3})`: This part of the regex is similar to the previous one. It also matches three consecutive digits and captures them in a group.
+    - `(\d{4})`: This part of the regex matches four consecutive digits and captures them in a group.
 
 ```javascript
 const phoneNumber = '1234567890'
