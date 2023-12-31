@@ -240,26 +240,44 @@ Its speed and security features make Wasm an ideal candidate for running code on
 
 ### Use Case: WebAssembly Smart Contract
 
-Suppose you want to develop a simple smart contract for a blockchain platform using WebAssembly.
+Suppose you want to create a simple smart contract for a blockchain-based cryptocurrency using WebAssembly. The smart contract will handle basic operations like transferring funds and checking account balances.
 
-C Code: smart_contract.c
+C Code: cryptocurrency_contract.c
 
 ```c
-#include <stdio.h>
+#include <stdint.h>
 
-int add(int a, int b) {
-    return a + b;
+typedef struct {
+    uint32_t account_id;
+    uint64_t balance;
+} Account;
+
+Account accounts[10];
+
+void initialize() {
+    for (int i = 0; i < 10; ++i) {
+        accounts[i].account_id = i;
+        accounts[i].balance = 1000; // Initial balance for each account
+    }
 }
 
-int multiply(int a, int b) {
-    return a * b;
+uint64_t getBalance(uint32_t account_id) {
+    return accounts[account_id].balance;
 }
+
+void transferFunds(uint32_t sender_id, uint32_t receiver_id, uint64_t amount) {
+    if (accounts[sender_id].balance >= amount) {
+        accounts[sender_id].balance -= amount;
+        accounts[receiver_id].balance += amount;
+    }
+}
+
 ```
 
 Compiling to WebAssembly:
 
 ```bash
-emcc -O3 -s WASM=1 -o smart_contract.wasm smart_contract.c
+emcc -O3 -s WASM=1 -o cryptocurrency_contract.wasm cryptocurrency_contract.c
 ```
 
 JavaScript Integration (Simulating Blockchain Execution):
@@ -267,21 +285,28 @@ JavaScript Integration (Simulating Blockchain Execution):
 ```javascript
 // JavaScript code
 
-fetch('smart_contract.wasm')
+fetch('cryptocurrency_contract.wasm')
   .then((response) => response.arrayBuffer())
   .then((bytes) => WebAssembly.instantiate(bytes, {}))
   .then((results) => {
     const instance = results.instance
 
-    // Simulate blockchain execution
-    const resultAdd = instance.exports.add(5, 10)
-    const resultMultiply = instance.exports.multiply(3, 7)
+    // Initialize accounts
+    instance.exports.initialize()
 
-    console.log('Smart Contract Results:', resultAdd, resultMultiply)
+    // Transfer funds
+    instance.exports.transferFunds(0, 1, 200)
+
+    // Get balances
+    const balanceSender = instance.exports.getBalance(0)
+    const balanceReceiver = instance.exports.getBalance(1)
+
+    console.log('Account 0 Balance:', balanceSender)
+    console.log('Account 1 Balance:', balanceReceiver)
   })
 ```
 
-In this example, the C functions add and multiply represent basic smart contract logic. The WebAssembly module is used to simulate their execution within a blockchain environment.
+In this example, the C functions initialize, getBalance, and transferFunds represent basic operations for a cryptocurrency smart contract. The WebAssembly module is then integrated into a JavaScript application to simulate the execution of these operations within a blockchain environment.
 
 ## Machine Learning in the Browser 🤖:
 
