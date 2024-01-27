@@ -5,9 +5,10 @@ const siteMetadata = {
   description: 'Front of the Line: Front-End Development and Algorithmic Insights',
   language: 'en-us, vn',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
-  siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
+  siteUrl: 'https://frontoftheline.me/',
+  siteRepo: 'https://github.com/lqtrung-95/my-new-blog',
   siteLogo: '/static/images/logo.png',
+  seoImage: 'https://trungle-storage.s3.ap-southeast-2.amazonaws.com/frontoftheline.png',
   image: '/static/images/avatar-linkedin.jpeg',
   socialBanner: '/static/images/twitter-card.png',
   email: 'address@yoursite.com',
