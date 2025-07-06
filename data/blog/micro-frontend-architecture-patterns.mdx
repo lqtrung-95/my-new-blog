@@ -1,0 +1,630 @@
+---
+title: Micro-Frontend Architecture Patterns
+date: '2024-06-20'
+tags: ['Micro-Frontend', 'Architecture', 'Front-End', 'JavaScript']
+draft: false
+summary: 'Explore micro-frontend architecture patterns for building scalable, maintainable web applications at enterprise scale 🏗️'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+# Micro-Frontend Architecture Patterns
+
+As web applications grow in complexity and team size, traditional monolithic frontend architectures become increasingly difficult to maintain. Micro-frontend architecture offers a solution by breaking down large applications into smaller, independently deployable pieces. This guide explores proven patterns and strategies for implementing micro-frontends successfully. 🏗️
+
+## What are Micro-Frontends?
+
+Micro-frontends extend the concept of microservices to frontend development. Instead of a single monolithic frontend, the application is composed of multiple smaller frontends, each owned by different teams and potentially built with different technologies.
+
+### Key Benefits
+
+- **Independent Development**: Teams can work autonomously
+- **Technology Diversity**: Different frameworks can coexist
+- **Scalable Teams**: Easier to scale development teams
+- **Fault Isolation**: Issues in one micro-frontend don't affect others
+- **Independent Deployment**: Deploy features independently
+
+## Architecture Patterns
+
+### 1. Build-Time Integration
+
+```javascript
+// Package.json dependencies
+{
+  "dependencies": {
+    "@company/header-mf": "^1.2.0",
+    "@company/sidebar-mf": "^2.1.0",
+    "@company/main-content-mf": "^1.5.0"
+  }
+}
+
+// App.js
+import Header from '@company/header-mf'
+import Sidebar from '@company/sidebar-mf'
+import MainContent from '@company/main-content-mf'
+
+function App() {
+  return (
+    <div>
+      <Header />
+      <div className="app-body">
+        <Sidebar />
+        <MainContent />
+      </div>
+    </div>
+  )
+}
+```
+
+### 2. Runtime Integration via JavaScript
+
+```javascript
+// Container application
+class MicroFrontendLoader {
+  constructor() {
+    this.microFrontends = new Map()
+  }
+
+  async loadMicroFrontend(name, url) {
+    if (this.microFrontends.has(name)) {
+      return this.microFrontends.get(name)
+    }
+
+    const script = document.createElement('script')
+    script.src = url
+    script.crossOrigin = 'anonymous'
+
+    return new Promise((resolve, reject) => {
+      script.onload = () => {
+        const microFrontend = window[name]
+        this.microFrontends.set(name, microFrontend)
+        resolve(microFrontend)
+      }
+      script.onerror = reject
+      document.head.appendChild(script)
+    })
+  }
+
+  async renderMicroFrontend(name, containerId, props = {}) {
+    const microFrontend = await this.loadMicroFrontend(name, `/mf/${name}/bundle.js`)
+    const container = document.getElementById(containerId)
+
+    if (microFrontend && microFrontend.render) {
+      microFrontend.render(container, props)
+    }
+  }
+}
+
+// Usage
+const loader = new MicroFrontendLoader()
+loader.renderMicroFrontend('userProfile', 'user-profile-container', { userId: 123 })
+```
+
+### 3. Web Components Integration
+
+```javascript
+// Micro-frontend as Web Component
+class UserProfileMF extends HTMLElement {
+  constructor() {
+    super()
+    this.attachShadow({ mode: 'open' })
+  }
+
+  connectedCallback() {
+    this.render()
+  }
+
+  static get observedAttributes() {
+    return ['user-id', 'theme']
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this.render()
+    }
+  }
+
+  render() {
+    const userId = this.getAttribute('user-id')
+    const theme = this.getAttribute('theme') || 'light'
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          padding: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        .profile { 
+          background: ${theme === 'dark' ? '#333' : '#fff'};
+          color: ${theme === 'dark' ? '#fff' : '#333'};
+        }
+      </style>
+      <div class="profile">
+        <h2>User Profile</h2>
+        <p>User ID: ${userId}</p>
+        <div id="profile-content"></div>
+      </div>
+    `
+
+    this.loadUserData(userId)
+  }
+
+  async loadUserData(userId) {
+    try {
+      const response = await fetch(`/api/users/${userId}`)
+      const user = await response.json()
+      const content = this.shadowRoot.getElementById('profile-content')
+      content.innerHTML = `
+        <p>Name: ${user.name}</p>
+        <p>Email: ${user.email}</p>
+      `
+    } catch (error) {
+      console.error('Failed to load user data:', error)
+    }
+  }
+}
+
+customElements.define('user-profile-mf', UserProfileMF)
+```
+
+### 4. Module Federation (Webpack 5)
+
+```javascript
+// webpack.config.js for Container App
+const ModuleFederationPlugin = require('@module-federation/webpack')
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'container',
+      remotes: {
+        userProfile: 'userProfile@http://localhost:3001/remoteEntry.js',
+        dashboard: 'dashboard@http://localhost:3002/remoteEntry.js',
+      },
+    }),
+  ],
+}
+
+// webpack.config.js for Micro-frontend
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'userProfile',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './UserProfile': './src/UserProfile',
+        './UserSettings': './src/UserSettings',
+      },
+      shared: {
+        react: { singleton: true },
+        'react-dom': { singleton: true },
+      },
+    }),
+  ],
+}
+
+// Container App usage
+import React, { Suspense } from 'react'
+
+const UserProfile = React.lazy(() => import('userProfile/UserProfile'))
+const Dashboard = React.lazy(() => import('dashboard/Dashboard'))
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading User Profile...</div>}>
+        <UserProfile />
+      </Suspense>
+      <Suspense fallback={<div>Loading Dashboard...</div>}>
+        <Dashboard />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+## Communication Patterns
+
+### 1. Custom Events
+
+```javascript
+// Publishing events
+class EventBus {
+  constructor() {
+    this.events = {}
+  }
+
+  subscribe(event, callback) {
+    if (!this.events[event]) {
+      this.events[event] = []
+    }
+    this.events[event].push(callback)
+  }
+
+  publish(event, data) {
+    if (this.events[event]) {
+      this.events[event].forEach((callback) => callback(data))
+    }
+  }
+
+  unsubscribe(event, callback) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter((cb) => cb !== callback)
+    }
+  }
+}
+
+// Global event bus
+window.eventBus = new EventBus()
+
+// Micro-frontend A
+window.eventBus.publish('user-logged-in', { userId: 123, name: 'John' })
+
+// Micro-frontend B
+window.eventBus.subscribe('user-logged-in', (userData) => {
+  console.log('User logged in:', userData)
+  updateUI(userData)
+})
+```
+
+### 2. Shared State Management
+
+```javascript
+// Shared state store
+class SharedStore {
+  constructor() {
+    this.state = {}
+    this.subscribers = []
+  }
+
+  getState() {
+    return { ...this.state }
+  }
+
+  setState(updates) {
+    this.state = { ...this.state, ...updates }
+    this.notifySubscribers()
+  }
+
+  subscribe(callback) {
+    this.subscribers.push(callback)
+    return () => {
+      this.subscribers = this.subscribers.filter((sub) => sub !== callback)
+    }
+  }
+
+  notifySubscribers() {
+    this.subscribers.forEach((callback) => callback(this.state))
+  }
+}
+
+// Global shared store
+window.sharedStore = new SharedStore()
+
+// Micro-frontend usage
+const unsubscribe = window.sharedStore.subscribe((state) => {
+  console.log('State updated:', state)
+  // Update component state
+})
+
+// Update shared state
+window.sharedStore.setState({ currentUser: { id: 123, name: 'John' } })
+```
+
+## Routing Strategies
+
+### 1. Container-Based Routing
+
+```javascript
+// Container App Router
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/profile/*" element={<UserProfileMF />} />
+        <Route path="/dashboard/*" element={<DashboardMF />} />
+        <Route path="/settings/*" element={<SettingsMF />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+// Micro-frontend internal routing
+function UserProfileMF() {
+  return (
+    <Routes>
+      <Route path="/" element={<ProfileOverview />} />
+      <Route path="/edit" element={<EditProfile />} />
+      <Route path="/preferences" element={<UserPreferences />} />
+    </Routes>
+  )
+}
+```
+
+### 2. Micro-frontend Router
+
+```javascript
+class MicroFrontendRouter {
+  constructor() {
+    this.routes = new Map()
+    this.currentRoute = null
+
+    window.addEventListener('popstate', () => {
+      this.handleRouteChange()
+    })
+  }
+
+  registerRoute(path, microFrontend) {
+    this.routes.set(path, microFrontend)
+  }
+
+  navigate(path) {
+    window.history.pushState({}, '', path)
+    this.handleRouteChange()
+  }
+
+  handleRouteChange() {
+    const path = window.location.pathname
+    const route = this.findMatchingRoute(path)
+
+    if (route && route !== this.currentRoute) {
+      this.unmountCurrent()
+      this.mountRoute(route, path)
+      this.currentRoute = route
+    }
+  }
+
+  findMatchingRoute(path) {
+    for (const [routePath, microFrontend] of this.routes) {
+      if (path.startsWith(routePath)) {
+        return { path: routePath, microFrontend }
+      }
+    }
+    return null
+  }
+
+  mountRoute(route, path) {
+    const container = document.getElementById('mf-container')
+    route.microFrontend.mount(container, { path })
+  }
+
+  unmountCurrent() {
+    if (this.currentRoute) {
+      this.currentRoute.microFrontend.unmount()
+    }
+  }
+}
+```
+
+## Deployment Strategies
+
+### 1. Independent Deployment
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  container-app:
+    build: ./container
+    ports:
+      - '3000:3000'
+    environment:
+      - USER_PROFILE_URL=http://user-profile:3001
+      - DASHBOARD_URL=http://dashboard:3002
+
+  user-profile:
+    build: ./micro-frontends/user-profile
+    ports:
+      - '3001:3001'
+
+  dashboard:
+    build: ./micro-frontends/dashboard
+    ports:
+      - '3002:3002'
+```
+
+### 2. CDN-Based Deployment
+
+```javascript
+// Deployment configuration
+const deploymentConfig = {
+  production: {
+    userProfile: 'https://cdn.example.com/user-profile/v1.2.0/bundle.js',
+    dashboard: 'https://cdn.example.com/dashboard/v2.1.0/bundle.js',
+  },
+  staging: {
+    userProfile: 'https://cdn-staging.example.com/user-profile/latest/bundle.js',
+    dashboard: 'https://cdn-staging.example.com/dashboard/latest/bundle.js',
+  },
+}
+
+// Dynamic loading based on environment
+const environment = process.env.NODE_ENV || 'production'
+const config = deploymentConfig[environment]
+
+async function loadMicroFrontend(name) {
+  const url = config[name]
+  return import(url)
+}
+```
+
+## Best Practices
+
+### 1. Design System Integration
+
+```javascript
+// Shared design system
+class DesignSystem {
+  constructor() {
+    this.tokens = {
+      colors: {
+        primary: '#007bff',
+        secondary: '#6c757d',
+        success: '#28a745',
+        danger: '#dc3545',
+      },
+      spacing: {
+        xs: '0.25rem',
+        sm: '0.5rem',
+        md: '1rem',
+        lg: '1.5rem',
+        xl: '2rem',
+      },
+      typography: {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: {
+          sm: '0.875rem',
+          base: '1rem',
+          lg: '1.125rem',
+          xl: '1.25rem',
+        },
+      },
+    }
+  }
+
+  injectStyles() {
+    const style = document.createElement('style')
+    style.textContent = `
+      :root {
+        ${Object.entries(this.tokens.colors)
+          .map(([key, value]) => `--color-${key}: ${value};`)
+          .join('\n')}
+        ${Object.entries(this.tokens.spacing)
+          .map(([key, value]) => `--spacing-${key}: ${value};`)
+          .join('\n')}
+      }
+    `
+    document.head.appendChild(style)
+  }
+}
+
+// Initialize design system
+window.designSystem = new DesignSystem()
+window.designSystem.injectStyles()
+```
+
+### 2. Error Boundaries
+
+```javascript
+class MicroFrontendErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Micro-frontend error:', error, errorInfo)
+
+    // Report to monitoring service
+    if (window.errorReporting) {
+      window.errorReporting.captureException(error, {
+        extra: errorInfo,
+        tags: {
+          microFrontend: this.props.name,
+        },
+      })
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error-fallback">
+          <h2>Something went wrong in {this.props.name}</h2>
+          <button onClick={() => window.location.reload()}>Reload Page</button>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+```
+
+## Performance Considerations
+
+### 1. Code Splitting and Lazy Loading
+
+```javascript
+// Lazy loading micro-frontends
+const MicroFrontendLoader = ({ name, fallback, ...props }) => {
+  const [Component, setComponent] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const loadComponent = async () => {
+      try {
+        const module = await import(`@micro-frontends/${name}`)
+        setComponent(() => module.default)
+      } catch (err) {
+        setError(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadComponent()
+  }, [name])
+
+  if (loading) return fallback || <div>Loading...</div>
+  if (error) return <div>Error loading {name}</div>
+  if (!Component) return null
+
+  return <Component {...props} />
+}
+```
+
+### 2. Bundle Optimization
+
+```javascript
+// webpack.config.js
+const path = require('path')
+
+module.exports = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        shared: {
+          name: 'shared',
+          minChunks: 2,
+          chunks: 'all',
+          enforce: true,
+        },
+      },
+    },
+  },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+}
+```
+
+## Conclusion
+
+Micro-frontend architecture provides a powerful approach to scaling frontend development across large organizations. Key takeaways:
+
+1. **Choose the right integration pattern** based on your needs
+2. **Establish clear communication contracts** between micro-frontends
+3. **Implement shared design systems** for consistency
+4. **Plan deployment strategies** carefully
+5. **Monitor performance** and user experience
+6. **Establish governance** for technology choices
+
+Success with micro-frontends requires careful planning, strong architectural decisions, and ongoing maintenance. When implemented correctly, they enable teams to scale independently while maintaining a cohesive user experience. 🚀

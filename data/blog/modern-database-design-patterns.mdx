@@ -1,0 +1,688 @@
+---
+title: Modern Database Design Patterns for Full-Stack Applications
+date: '2024-08-22'
+tags: ['Database', 'Full-Stack', 'Architecture', 'Backend']
+draft: false
+summary: 'Explore modern database design patterns, optimization techniques, and best practices for scalable full-stack applications 🗄️'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+# Modern Database Design Patterns for Full-Stack Applications
+
+Database design is the foundation of any successful application. This guide explores modern patterns, optimization techniques, and best practices for designing databases that scale with your application's growth. 🗄️
+
+## Database Design Fundamentals
+
+### Entity-Relationship Modeling
+
+```sql
+-- Users table with proper indexing
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    avatar_url TEXT,
+    email_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes for performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_created_at ON users(created_at);
+CREATE INDEX idx_users_deleted_at ON users(deleted_at) WHERE deleted_at IS NOT NULL;
+
+-- Posts table with relationships
+CREATE TABLE posts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    content TEXT NOT NULL,
+    excerpt TEXT,
+    author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+    featured_image_url TEXT,
+    published_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for posts
+CREATE INDEX idx_posts_author_id ON posts(author_id);
+CREATE INDEX idx_posts_category_id ON posts(category_id);
+CREATE INDEX idx_posts_status ON posts(status);
+CREATE INDEX idx_posts_published_at ON posts(published_at);
+CREATE INDEX idx_posts_slug ON posts(slug);
+```
+
+### Advanced Relationships
+
+```sql
+-- Many-to-many relationship with additional attributes
+CREATE TABLE post_tags (
+    post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+    tag_id UUID REFERENCES tags(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (post_id, tag_id)
+);
+
+-- Self-referencing relationship for comments
+CREATE TABLE comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,
+    author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    is_approved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Hierarchical queries with Common Table Expressions
+WITH RECURSIVE comment_tree AS (
+    -- Base case: root comments
+    SELECT id, post_id, parent_id, content, author_id, 0 as level
+    FROM comments
+    WHERE parent_id IS NULL AND post_id = $1
+
+    UNION ALL
+
+    -- Recursive case: child comments
+    SELECT c.id, c.post_id, c.parent_id, c.content, c.author_id, ct.level + 1
+    FROM comments c
+    JOIN comment_tree ct ON c.parent_id = ct.id
+)
+SELECT * FROM comment_tree ORDER BY level, created_at;
+```
+
+## Advanced Querying Patterns
+
+### Window Functions
+
+```sql
+-- Ranking and analytics
+SELECT
+    u.username,
+    p.title,
+    p.created_at,
+    COUNT(*) OVER (PARTITION BY p.author_id) as user_post_count,
+    ROW_NUMBER() OVER (PARTITION BY p.author_id ORDER BY p.created_at DESC) as post_rank,
+    LAG(p.created_at) OVER (PARTITION BY p.author_id ORDER BY p.created_at) as prev_post_date
+FROM posts p
+JOIN users u ON p.author_id = u.id
+WHERE p.status = 'published';
+
+-- Running totals and moving averages
+SELECT
+    date_trunc('day', created_at) as day,
+    COUNT(*) as daily_posts,
+    SUM(COUNT(*)) OVER (ORDER BY date_trunc('day', created_at)) as running_total,
+    AVG(COUNT(*)) OVER (ORDER BY date_trunc('day', created_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as week_avg
+FROM posts
+WHERE status = 'published'
+GROUP BY date_trunc('day', created_at)
+ORDER BY day;
+```
+
+### JSON Operations
+
+```sql
+-- JSON column for flexible data
+ALTER TABLE users ADD COLUMN preferences JSONB DEFAULT '{}';
+ALTER TABLE posts ADD COLUMN metadata JSONB DEFAULT '{}';
+
+-- JSON queries and operations
+UPDATE users
+SET preferences = preferences || '{"theme": "dark", "notifications": {"email": true}}'
+WHERE id = $1;
+
+-- Query JSON data
+SELECT username, preferences->'theme' as theme
+FROM users
+WHERE preferences->>'theme' = 'dark';
+
+-- JSON aggregation
+SELECT
+    jsonb_agg(
+        jsonb_build_object(
+            'id', p.id,
+            'title', p.title,
+            'author', u.username,
+            'tags', (
+                SELECT jsonb_agg(t.name)
+                FROM post_tags pt
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pt.post_id = p.id
+            )
+        )
+    ) as posts
+FROM posts p
+JOIN users u ON p.author_id = u.id
+WHERE p.status = 'published';
+```
+
+## Performance Optimization
+
+### Indexing Strategies
+
+```sql
+-- Composite indexes for common query patterns
+CREATE INDEX idx_posts_author_status_published ON posts(author_id, status, published_at)
+WHERE status = 'published';
+
+-- Partial indexes for specific conditions
+CREATE INDEX idx_posts_featured ON posts(id) WHERE featured_image_url IS NOT NULL;
+
+-- Expression indexes
+CREATE INDEX idx_users_email_lower ON users(lower(email));
+
+-- Full-text search indexes
+CREATE INDEX idx_posts_search ON posts USING gin(to_tsvector('english', title || ' ' || content));
+
+-- Query using full-text search
+SELECT p.*, ts_rank(to_tsvector('english', title || ' ' || content), query) as rank
+FROM posts p, plainto_tsquery('database design') query
+WHERE to_tsvector('english', title || ' ' || content) @@ query
+ORDER BY rank DESC;
+```
+
+### Query Optimization
+
+```sql
+-- Efficient pagination with cursor-based approach
+SELECT id, title, created_at
+FROM posts
+WHERE created_at < $1  -- cursor value
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- Avoiding N+1 queries with joins
+SELECT
+    p.id,
+    p.title,
+    u.username as author,
+    c.name as category,
+    array_agg(t.name) as tags
+FROM posts p
+JOIN users u ON p.author_id = u.id
+LEFT JOIN categories c ON p.category_id = c.id
+LEFT JOIN post_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+WHERE p.status = 'published'
+GROUP BY p.id, p.title, u.username, c.name
+ORDER BY p.published_at DESC;
+```
+
+## Database Patterns for Scalability
+
+### Read Replicas Pattern
+
+```javascript
+// Database connection with read/write splitting
+const { Pool } = require('pg')
+
+class DatabaseManager {
+  constructor() {
+    this.writePool = new Pool({
+      connectionString: process.env.DATABASE_WRITE_URL,
+      max: 20,
+      idleTimeoutMillis: 30000,
+    })
+
+    this.readPools = [
+      new Pool({
+        connectionString: process.env.DATABASE_READ_URL_1,
+        max: 10,
+        idleTimeoutMillis: 30000,
+      }),
+      new Pool({
+        connectionString: process.env.DATABASE_READ_URL_2,
+        max: 10,
+        idleTimeoutMillis: 30000,
+      }),
+    ]
+  }
+
+  getWriteConnection() {
+    return this.writePool
+  }
+
+  getReadConnection() {
+    // Simple round-robin load balancing
+    const index = Math.floor(Math.random() * this.readPools.length)
+    return this.readPools[index]
+  }
+
+  async executeWrite(query, params) {
+    const client = await this.writePool.connect()
+    try {
+      return await client.query(query, params)
+    } finally {
+      client.release()
+    }
+  }
+
+  async executeRead(query, params) {
+    const pool = this.getReadConnection()
+    const client = await pool.connect()
+    try {
+      return await client.query(query, params)
+    } finally {
+      client.release()
+    }
+  }
+}
+
+module.exports = new DatabaseManager()
+```
+
+### Sharding Pattern
+
+```javascript
+// Simple sharding implementation
+class ShardedDatabase {
+  constructor(shards) {
+    this.shards = shards
+  }
+
+  getShardForUser(userId) {
+    // Simple hash-based sharding
+    const hash = this.hashUserId(userId)
+    return this.shards[hash % this.shards.length]
+  }
+
+  hashUserId(userId) {
+    let hash = 0
+    for (let i = 0; i < userId.length; i++) {
+      const char = userId.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash // Convert to 32-bit integer
+    }
+    return Math.abs(hash)
+  }
+
+  async getUserPosts(userId) {
+    const shard = this.getShardForUser(userId)
+    return await shard.query('SELECT * FROM posts WHERE author_id = $1 ORDER BY created_at DESC', [
+      userId,
+    ])
+  }
+
+  async createPost(postData) {
+    const shard = this.getShardForUser(postData.author_id)
+    return await shard.query(
+      'INSERT INTO posts (title, content, author_id) VALUES ($1, $2, $3) RETURNING *',
+      [postData.title, postData.content, postData.author_id]
+    )
+  }
+}
+```
+
+## Data Modeling Patterns
+
+### Event Sourcing
+
+```sql
+-- Event store table
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    aggregate_id UUID NOT NULL,
+    aggregate_type VARCHAR(50) NOT NULL,
+    event_type VARCHAR(100) NOT NULL,
+    event_data JSONB NOT NULL,
+    event_version INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+    UNIQUE(aggregate_id, event_version)
+);
+
+CREATE INDEX idx_events_aggregate ON events(aggregate_id, event_version);
+CREATE INDEX idx_events_type ON events(aggregate_type, event_type);
+```
+
+```javascript
+// Event sourcing implementation
+class EventStore {
+  constructor(db) {
+    this.db = db
+  }
+
+  async appendEvent(aggregateId, aggregateType, eventType, eventData, expectedVersion) {
+    const client = await this.db.connect()
+
+    try {
+      await client.query('BEGIN')
+
+      // Get current version
+      const versionResult = await client.query(
+        'SELECT COALESCE(MAX(event_version), 0) as version FROM events WHERE aggregate_id = $1',
+        [aggregateId]
+      )
+
+      const currentVersion = versionResult.rows[0].version
+
+      // Check for concurrency conflicts
+      if (expectedVersion !== currentVersion) {
+        throw new Error('Concurrency conflict detected')
+      }
+
+      // Append new event
+      const result = await client.query(
+        `INSERT INTO events (aggregate_id, aggregate_type, event_type, event_data, event_version)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [aggregateId, aggregateType, eventType, eventData, currentVersion + 1]
+      )
+
+      await client.query('COMMIT')
+      return result.rows[0]
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
+  }
+
+  async getEvents(aggregateId, fromVersion = 0) {
+    const result = await this.db.query(
+      `SELECT * FROM events 
+       WHERE aggregate_id = $1 AND event_version > $2 
+       ORDER BY event_version`,
+      [aggregateId, fromVersion]
+    )
+    return result.rows
+  }
+}
+```
+
+### CQRS (Command Query Responsibility Segregation)
+
+```sql
+-- Write model (normalized)
+CREATE TABLE user_commands (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    command_type VARCHAR(50) NOT NULL,
+    command_data JSONB NOT NULL,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Read model (denormalized for fast queries)
+CREATE TABLE user_profiles_view (
+    user_id UUID PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    full_name VARCHAR(200),
+    avatar_url TEXT,
+    post_count INTEGER DEFAULT 0,
+    follower_count INTEGER DEFAULT 0,
+    following_count INTEGER DEFAULT 0,
+    last_post_date TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Materialized view for complex aggregations
+CREATE MATERIALIZED VIEW popular_posts AS
+SELECT
+    p.id,
+    p.title,
+    p.author_id,
+    u.username,
+    COUNT(DISTINCT c.id) as comment_count,
+    COUNT(DISTINCT l.user_id) as like_count,
+    p.published_at
+FROM posts p
+JOIN users u ON p.author_id = u.id
+LEFT JOIN comments c ON p.id = c.post_id
+LEFT JOIN likes l ON p.id = l.post_id
+WHERE p.status = 'published'
+GROUP BY p.id, p.title, p.author_id, u.username, p.published_at
+ORDER BY (COUNT(DISTINCT c.id) + COUNT(DISTINCT l.user_id)) DESC;
+
+-- Refresh materialized view periodically
+REFRESH MATERIALIZED VIEW popular_posts;
+```
+
+## Database Migrations and Versioning
+
+### Migration System
+
+```javascript
+// Migration framework
+class MigrationManager {
+  constructor(db) {
+    this.db = db
+  }
+
+  async createMigrationsTable() {
+    await this.db.query(`
+      CREATE TABLE IF NOT EXISTS migrations (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        executed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `)
+  }
+
+  async runMigrations(migrationsDir) {
+    await this.createMigrationsTable()
+
+    const fs = require('fs').promises
+    const path = require('path')
+
+    const files = await fs.readdir(migrationsDir)
+    const migrationFiles = files.filter((file) => file.endsWith('.sql')).sort()
+
+    for (const file of migrationFiles) {
+      const migrationName = path.basename(file, '.sql')
+
+      // Check if migration already executed
+      const result = await this.db.query('SELECT id FROM migrations WHERE name = $1', [
+        migrationName,
+      ])
+
+      if (result.rows.length === 0) {
+        console.log(`Running migration: ${migrationName}`)
+
+        const migrationSql = await fs.readFile(path.join(migrationsDir, file), 'utf8')
+
+        const client = await this.db.connect()
+        try {
+          await client.query('BEGIN')
+          await client.query(migrationSql)
+          await client.query('INSERT INTO migrations (name) VALUES ($1)', [migrationName])
+          await client.query('COMMIT')
+          console.log(`Migration completed: ${migrationName}`)
+        } catch (error) {
+          await client.query('ROLLBACK')
+          throw error
+        } finally {
+          client.release()
+        }
+      }
+    }
+  }
+}
+```
+
+### Zero-Downtime Migrations
+
+```sql
+-- Safe column addition
+ALTER TABLE users ADD COLUMN phone_number VARCHAR(20);
+
+-- Safe index creation (concurrent)
+CREATE INDEX CONCURRENTLY idx_users_phone ON users(phone_number);
+
+-- Safe column removal (multi-step process)
+-- Step 1: Stop writing to the column
+-- Step 2: Remove column from application code
+-- Step 3: Drop the column
+ALTER TABLE users DROP COLUMN old_column;
+
+-- Renaming columns safely
+-- Step 1: Add new column
+ALTER TABLE users ADD COLUMN new_name VARCHAR(255);
+
+-- Step 2: Update application to write to both columns
+UPDATE users SET new_name = old_name WHERE new_name IS NULL;
+
+-- Step 3: Update application to read from new column
+-- Step 4: Drop old column
+ALTER TABLE users DROP COLUMN old_name;
+```
+
+## Monitoring and Observability
+
+### Query Performance Monitoring
+
+```sql
+-- Enable query logging
+ALTER SYSTEM SET log_statement = 'all';
+ALTER SYSTEM SET log_min_duration_statement = 1000; -- Log queries > 1 second
+
+-- Query performance statistics
+SELECT
+    query,
+    calls,
+    total_time,
+    mean_time,
+    rows,
+    100.0 * shared_blks_hit / nullif(shared_blks_hit + shared_blks_read, 0) AS hit_percent
+FROM pg_stat_statements
+ORDER BY total_time DESC
+LIMIT 10;
+
+-- Index usage statistics
+SELECT
+    schemaname,
+    tablename,
+    indexname,
+    idx_scan,
+    idx_tup_read,
+    idx_tup_fetch
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;
+```
+
+### Database Health Monitoring
+
+```javascript
+// Database health check
+class DatabaseHealthChecker {
+  constructor(db) {
+    this.db = db
+  }
+
+  async checkHealth() {
+    const checks = {
+      connection: await this.checkConnection(),
+      performance: await this.checkPerformance(),
+      storage: await this.checkStorage(),
+      replication: await this.checkReplication(),
+    }
+
+    const isHealthy = Object.values(checks).every((check) => check.status === 'healthy')
+
+    return {
+      status: isHealthy ? 'healthy' : 'unhealthy',
+      checks,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  async checkConnection() {
+    try {
+      await this.db.query('SELECT 1')
+      return { status: 'healthy', message: 'Database connection is working' }
+    } catch (error) {
+      return { status: 'unhealthy', message: error.message }
+    }
+  }
+
+  async checkPerformance() {
+    try {
+      const result = await this.db.query(`
+        SELECT 
+          count(*) as active_connections,
+          (SELECT count(*) FROM pg_stat_activity WHERE state = 'idle in transaction') as idle_in_transaction
+        FROM pg_stat_activity
+      `)
+
+      const { active_connections, idle_in_transaction } = result.rows[0]
+
+      if (active_connections > 80) {
+        return { status: 'warning', message: `High connection count: ${active_connections}` }
+      }
+
+      if (idle_in_transaction > 5) {
+        return { status: 'warning', message: `High idle in transaction: ${idle_in_transaction}` }
+      }
+
+      return { status: 'healthy', message: 'Performance metrics are normal' }
+    } catch (error) {
+      return { status: 'unhealthy', message: error.message }
+    }
+  }
+
+  async checkStorage() {
+    try {
+      const result = await this.db.query(`
+        SELECT 
+          pg_size_pretty(pg_database_size(current_database())) as database_size,
+          pg_size_pretty(pg_total_relation_size('users')) as users_table_size
+      `)
+
+      return {
+        status: 'healthy',
+        message: 'Storage check completed',
+        data: result.rows[0],
+      }
+    } catch (error) {
+      return { status: 'unhealthy', message: error.message }
+    }
+  }
+
+  async checkReplication() {
+    try {
+      const result = await this.db.query(`
+        SELECT 
+          client_addr,
+          state,
+          pg_wal_lsn_diff(pg_current_wal_lsn(), flush_lsn) as lag_bytes
+        FROM pg_stat_replication
+      `)
+
+      return {
+        status: 'healthy',
+        message: 'Replication status checked',
+        replicas: result.rows,
+      }
+    } catch (error) {
+      return { status: 'unhealthy', message: error.message }
+    }
+  }
+}
+```
+
+## Conclusion
+
+Modern database design requires careful consideration of:
+
+1. **Proper Schema Design**: Normalized structure with appropriate relationships
+2. **Performance Optimization**: Strategic indexing and query optimization
+3. **Scalability Patterns**: Read replicas, sharding, and caching strategies
+4. **Advanced Patterns**: Event sourcing, CQRS for complex domains
+5. **Migration Strategy**: Safe, zero-downtime schema changes
+6. **Monitoring**: Comprehensive observability and health checks
+
+These patterns and practices will help you build robust, scalable database systems that can grow with your application's needs. 🗄️

@@ -1,0 +1,407 @@
+---
+title: Algorithm 4 - Binary Search
+date: '2024-03-15'
+tags: ['Algorithm', 'Leetcode', 'StudyTogether']
+draft: false
+summary: Mastering Binary Search - Efficient Search in Sorted Arrays
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+Welcome to our deep dive into Binary Search algorithms! 🔍 Binary search is one of the most fundamental and efficient algorithms in computer science, allowing us to search through sorted data with logarithmic time complexity. Whether you're preparing for coding interviews or looking to optimize your search operations, mastering binary search is essential for any programmer.
+
+Binary search works by repeatedly dividing the search interval in half. If the value we're searching for is less than the item in the middle of the interval, we narrow the interval to the lower half. Otherwise, we narrow it to the upper half. The search continues until the value is found or the interval is empty. 📊
+
+Throughout this guide, we'll explore various binary search patterns, from basic implementations to more complex variations. Get ready to unlock the power of efficient searching and take your algorithmic skills to the next level! 🚀
+
+- [Problem: Binary Search (Easy)](#problem-binary-search-easy)
+  - [Examples](#examples)
+  - [Solutions](#solutions)
+    - [Iterative Binary Search](#1-iterative-binary-search)
+    - [Recursive Binary Search](#2-recursive-binary-search)
+- [Problem: Search in Rotated Sorted Array (Medium)](#problem-search-in-rotated-sorted-array-medium)
+  - [Examples](#examples-1)
+  - [Solutions](#solutions-1)
+    - [Linear Search](#1-linear-search)
+    - [Modified Binary Search](#2-modified-binary-search)
+- [Problem: Find First and Last Position of Element in Sorted Array (Medium)](#problem-find-first-and-last-position-of-element-in-sorted-array-medium)
+  - [Examples](#examples-2)
+  - [Solutions](#solutions-2)
+    - [Linear Search](#1-linear-search-1)
+    - [Binary Search for Range](#2-binary-search-for-range)
+- [Problem: Search a 2D Matrix (Medium)](#problem-search-a-2d-matrix-medium)
+  - [Examples](#examples-3)
+  - [Solutions](#solutions-3)
+    - [Brute Force](#1-brute-force)
+    - [Binary Search](#2-binary-search)
+- [Wrap up](#wrap-up)
+
+## [Problem: Binary Search (Easy)](https://leetcode.com/problems/binary-search/)
+
+---
+
+Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, then return its index. Otherwise, return `-1`.
+
+You must write an algorithm with `O(log n)` runtime complexity.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+  Input: nums = [-1,0,3,5,9,12], target = 9
+  Output: 4
+  Explanation: 9 exists in nums and its index is 4
+  ```
+
+- Example 2:
+
+  ```js
+  Input: nums = [-1,0,3,5,9,12], target = 2
+  Output: -1
+  Explanation: 2 does not exist in nums so return -1
+  ```
+
+### Solutions:
+
+#### 1. Iterative Binary Search
+
+The classic iterative approach uses two pointers (left and right) to maintain the search boundaries. We repeatedly calculate the middle index and compare the middle element with our target.
+
+```python
+def search(nums, target):
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2  # Avoid potential overflow
+
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1
+```
+
+- Time Complexity: O(log n)
+- Space Complexity: O(1)
+
+#### 2. Recursive Binary Search
+
+The recursive approach follows the same logic but uses function calls instead of loops. This approach is more intuitive for some people but uses additional space for the call stack.
+
+```python
+def search(nums, target):
+    def binary_search(left, right):
+        if left > right:
+            return -1
+
+        mid = left + (right - left) // 2
+
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            return binary_search(mid + 1, right)
+        else:
+            return binary_search(left, mid - 1)
+
+    return binary_search(0, len(nums) - 1)
+```
+
+- Time Complexity: O(log n)
+- Space Complexity: O(log n) due to recursion stack
+
+#### Summarize
+
+Binary search is the foundation for many advanced algorithms. The key insight is that by eliminating half of the search space at each step, we achieve logarithmic time complexity. Let's explore more complex variations!
+
+## [Problem: Search in Rotated Sorted Array (Medium)](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+
+There is an integer array `nums` sorted in ascending order (with distinct values). Prior to being passed to your function, `nums` is possibly rotated at an unknown pivot index `k` such that the resulting array is `[nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]`.
+
+Given the array `nums` after the possible rotation and an integer `target`, return the index of `target` if it is in `nums`, or `-1` if it is not in `nums`.
+
+You must write an algorithm with `O(log n)` runtime complexity.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+  Input: (nums = [4, 5, 6, 7, 0, 1, 2]), (target = 0)
+  Output: 4
+  ```
+
+- Example 2:
+
+  ```js
+  Input: (nums = [4, 5, 6, 7, 0, 1, 2]), (target = 3)
+  Output: -1
+  ```
+
+- Example 3:
+
+  ```js
+  Input: (nums = [1]), (target = 0)
+  Output: -1
+  ```
+
+### Solutions:
+
+#### 1. Linear Search
+
+The straightforward approach is to search through the array linearly, but this doesn't meet the O(log n) requirement.
+
+```python
+def search(nums, target):
+    for i in range(len(nums)):
+        if nums[i] == target:
+            return i
+    return -1
+```
+
+- Time Complexity: O(n)
+- Space Complexity: O(1)
+
+#### 2. Modified Binary Search
+
+The key insight is that at least one half of the array is always sorted. We can determine which half is sorted and decide whether to search in that half or the other half.
+
+```python
+def search(nums, target):
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+
+        if nums[mid] == target:
+            return mid
+
+        # Check if left half is sorted
+        if nums[left] <= nums[mid]:
+            # Target is in the left sorted half
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:
+            # Right half is sorted
+            # Target is in the right sorted half
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+    return -1
+```
+
+- Time Complexity: O(log n)
+- Space Complexity: O(1)
+
+## [Problem: Find First and Last Position of Element in Sorted Array (Medium)](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+Given an array of integers `nums` sorted in non-decreasing order, find the starting and ending position of a given `target` value.
+
+If `target` is not found in the array, return `[-1, -1]`.
+
+You must write an algorithm with `O(log n)` runtime complexity.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+  Input: (nums = [5, 7, 7, 8, 8, 10]), (target = 8)
+  Output: [3, 4]
+  ```
+
+- Example 2:
+
+  ```js
+  Input: (nums = [5, 7, 7, 8, 8, 10]), (target = 6)
+  Output: [-1, -1]
+  ```
+
+- Example 3:
+
+  ```js
+  Input: (nums = []), (target = 0)
+  Output: [-1, -1]
+  ```
+
+### Solutions:
+
+#### 1. Linear Search
+
+We can scan through the array to find the first and last occurrence, but this takes O(n) time.
+
+```python
+def searchRange(nums, target):
+    first = last = -1
+
+    for i in range(len(nums)):
+        if nums[i] == target:
+            if first == -1:
+                first = i
+            last = i
+
+    return [first, last]
+```
+
+- Time Complexity: O(n)
+- Space Complexity: O(1)
+
+#### 2. Binary Search for Range
+
+We perform two binary searches: one to find the leftmost position and another to find the rightmost position of the target.
+
+```python
+def searchRange(nums, target):
+    def findFirst(nums, target):
+        left, right = 0, len(nums) - 1
+        result = -1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if nums[mid] == target:
+                result = mid
+                right = mid - 1  # Continue searching left
+            elif nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return result
+
+    def findLast(nums, target):
+        left, right = 0, len(nums) - 1
+        result = -1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            if nums[mid] == target:
+                result = mid
+                left = mid + 1  # Continue searching right
+            elif nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return result
+
+    first = findFirst(nums, target)
+    last = findLast(nums, target)
+
+    return [first, last]
+```
+
+- Time Complexity: O(log n)
+- Space Complexity: O(1)
+
+## [Problem: Search a 2D Matrix (Medium)](https://leetcode.com/problems/search-a-2d-matrix/)
+
+Write an efficient algorithm that searches for a value `target` in an `m x n` integer matrix `matrix`. This matrix has the following properties:
+
+- Integers in each row are sorted from left to right.
+- The first integer of each row is greater than the last integer of the previous row.
+
+### Examples:
+
+- Example 1:
+
+  ```js
+  Input: (matrix = [
+    [1, 4, 7, 11],
+    [2, 5, 8, 12],
+    [3, 6, 9, 16],
+    [10, 13, 14, 17],
+  ]),
+    (target = 5)
+  Output: true
+  ```
+
+- Example 2:
+
+  ```js
+  Input: (matrix = [
+    [1, 4, 7, 11],
+    [2, 5, 8, 12],
+    [3, 6, 9, 16],
+    [10, 13, 14, 17],
+  ]),
+    (target = 20)
+  Output: false
+  ```
+
+### Solutions:
+
+#### 1. Brute Force
+
+We can search through every element in the matrix, but this is inefficient.
+
+```python
+def searchMatrix(matrix, target):
+    for row in matrix:
+        for num in row:
+            if num == target:
+                return True
+    return False
+```
+
+- Time Complexity: O(m \* n)
+- Space Complexity: O(1)
+
+#### 2. Binary Search
+
+Since the matrix is sorted both row-wise and column-wise with the given properties, we can treat it as a single sorted array and apply binary search.
+
+```python
+def searchMatrix(matrix, target):
+    if not matrix or not matrix[0]:
+        return False
+
+    m, n = len(matrix), len(matrix[0])
+    left, right = 0, m * n - 1
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        # Convert 1D index to 2D coordinates
+        row = mid // n
+        col = mid % n
+        mid_value = matrix[row][col]
+
+        if mid_value == target:
+            return True
+        elif mid_value < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return False
+```
+
+- Time Complexity: O(log(m \* n))
+- Space Complexity: O(1)
+
+## Wrap up
+
+Binary search is a powerful technique that can dramatically improve the efficiency of search operations. The key principles to remember are:
+
+1. **Sorted Data**: Binary search only works on sorted data
+2. **Divide and Conquer**: Always eliminate half of the search space
+3. **Boundary Conditions**: Pay careful attention to left and right boundaries
+4. **Variations**: Many problems can be solved by modifying the basic binary search template
+
+The problems we've covered demonstrate different applications of binary search:
+
+- **Basic Binary Search**: Foundation for all variations
+- **Rotated Arrays**: Handling partially sorted data
+- **Range Queries**: Finding boundaries of target ranges
+- **2D Matrices**: Applying binary search to multi-dimensional data
+
+Master these patterns, and you'll be well-equipped to tackle a wide variety of search problems efficiently! Keep practicing and exploring more complex binary search variations. Happy coding! 💻✨
