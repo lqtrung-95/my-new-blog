@@ -1,18 +1,37 @@
 ---
 name: Trung Le
 avatar: /static/images/avatar-linkedin.jpeg
-occupation: Software Engineer
-company: Leading Global Fintech Company
+occupation: Frontend Engineer
+company: Binance
 email: letrung95@gmail.com
 linkedin: https://www.linkedin.com/in/trungle-3195/
 ---
 
-I am Trung Le, a passionate software engineer specializing in front-end development with a strong foundation in algorithms. Holding a degree in Computer Science from APCS of HCMUS - Vietnam, I have 5 years of industry experience.
+I am **Trung Le**, a **Frontend Engineer at Binance** and **Graduate Student at Georgia Tech** with **7+ years of experience** delivering scalable products used by **millions of users**.
 
-Currently employed at a leading global fintech company, I leverage my skills to create seamless user experiences and build robust front-end applications. Thriving in dynamic environments, I adapt to the ever-evolving world of technology.
+## 🚀 Professional Experience
 
-Driven by a deep curiosity for algorithms, I spend my free time exploring and improving my algorithmic skills. I believe in continuous learning for personal and professional growth, actively seeking opportunities to expand my knowledge and stay updated with industry trends.
+- **Frontend Engineer** at **Binance** - Building mission-critical financial applications
+- **7+ years** delivering scalable products with focus on **performance** and **reliability**
+- Strong track record in **leading UI efforts** across **FinTech** and **B2B platforms**
+- Consistently driven **user growth** and **engagement** through impactful features
 
-My dedication extends beyond my professional life. I constantly challenge myself, embracing every opportunity to sharpen my skills and broaden my understanding of software engineering.
+## 🎓 Education & Growth
 
-Through this blog, I share my experiences, insights, and learnings in front-end development, algorithmic techniques, and the evolving fintech industry. Join me on my journey of continuous improvement as I strive to inspire fellow software engineers.
+- **Graduate Student** at **Georgia Tech** - Specializing in **Interactive Intelligence**
+- Passionate about **modern front-end technologies** and **high-performance applications**
+- Commitment to **industry practice** and **academic excellence**
+
+## 💻 Technical Expertise
+
+- **Core Technologies**: React, TypeScript, Next.js, Modern JavaScript
+- **Specializations**: Performance optimization, Accessibility, Scalable architecture
+- **Focus Areas**: Enterprise-scale applications, Algorithm design, System architecture
+
+## 🌟 Beyond Code
+
+- **Algorithm enthusiast** - Constantly exploring problem-solving techniques
+- **Knowledge sharing** - Contributing to developer community through open-source
+- **Continuous learning** - Staying at the forefront of emerging technologies
+
+Through this blog, I share insights from building **enterprise-scale applications**, **algorithmic problem-solving**, and the latest in **front-end engineering**. Join me as I explore the intersection of **cutting-edge technology** and **practical application**.
