@@ -6,8 +6,12 @@ import SectionContainer from './SectionContainer'
 import Footer from './Footer'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
+import { useSearch } from './SearchProvider'
 
 const LayoutWrapper = ({ children }) => {
+  // Always try to get search context since it's now provided globally
+  const { openSearch } = useSearch()
+
   return (
     <SectionContainer>
       <div className="flex h-screen flex-col justify-between">
@@ -40,6 +44,24 @@ const LayoutWrapper = ({ children }) => {
                 </Link>
               ))}
             </div>
+
+            {/* Search Button */}
+            <button
+              onClick={openSearch}
+              className="rounded-md p-2 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200"
+              aria-label="Search articles"
+              title="Search articles (Cmd+K)"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+
             <ThemeSwitch />
             <MobileNav />
           </div>
