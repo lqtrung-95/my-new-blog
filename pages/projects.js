@@ -58,7 +58,7 @@ const companyProjects = [
       'Compliance',
       'Machine Learning',
     ],
-    link: null,
+    link: 'https://www.binance.com/en/support/faq/detail/360015552032',
     category: 'Compliance & Security',
     status: 'Production',
     role: 'Frontend Developer',
@@ -80,7 +80,7 @@ const personalProjects = [
     longDescription:
       'A client-side QR code generator that prioritizes user privacy by processing all data locally without server-side storage. Users can customize QR codes with custom colors and logos, making it perfect for business cards, event sharing, and secure information transfer.',
     technologies: ['JavaScript', 'QR Code Generation', 'Client-Side Processing', 'Privacy'],
-    link: null,
+    link: 'https://any-2-qr.vercel.app/',
     category: 'Utility',
     status: 'Completed',
     role: 'Solo Developer',
@@ -99,7 +99,7 @@ const personalProjects = [
     longDescription:
       'An educational game designed to make learning English idioms and sayings fun and engaging. Players decode emoji sequences to reveal popular expressions, improving their understanding of English language nuances while having fun.',
     technologies: ['Game Development', 'Educational Technology', 'React', 'Interactive UI'],
-    link: null,
+    link: 'https://emoji-charades.vercel.app/',
     category: 'Education & Gaming',
     status: 'Completed',
     role: 'Solo Developer',
@@ -120,7 +120,7 @@ const personalProjects = [
     technologies: ['OpenAI API', 'AI Integration', 'Tarot Systems', 'Natural Language Processing'],
     link: null,
     category: 'AI & Lifestyle',
-    status: 'Completed',
+    status: 'In Progress',
     role: 'Solo Developer',
     highlights: [
       'OpenAI GPT integration for intelligent interpretations',
@@ -139,7 +139,7 @@ const personalProjects = [
     technologies: ['Mobile Development', 'Computer Vision', 'Photography', 'React Native'],
     link: null,
     category: 'Mobile & Photography',
-    status: 'Completed',
+    status: 'In Progress',
     role: 'Solo Developer',
     highlights: [
       'Real-time pose guidance and suggestions',
@@ -163,8 +163,10 @@ const ProjectCard = ({ project, isPersonal = false }) => (
         <span
           className={`ml-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
             project.status === 'Production'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-blue-100 text-blue-800'
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              : project.status === 'Completed'
+              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+              : 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
           }`}
         >
           {project.status}
@@ -278,7 +280,7 @@ export default function Projects() {
 
           {/* Stats */}
           <div className="mx-auto max-w-4xl">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            <div className="grid grid-cols-3 gap-8 md:grid-cols-3">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">7+</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Projects</div>
@@ -292,14 +294,6 @@ export default function Projects() {
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">4</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Personal</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                  100%
-                </div>
-                <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Production
-                </div>
               </div>
             </div>
           </div>
@@ -323,83 +317,6 @@ export default function Projects() {
             projects={personalProjects}
             isPersonal={true}
           />
-        </div>
-
-        {/* Technologies Overview */}
-        <div className="py-12">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Technologies & Expertise
-            </h2>
-            <p className="mx-auto mb-8 max-w-3xl text-lg text-gray-600 dark:text-gray-400">
-              A comprehensive toolkit spanning backend systems, frontend frameworks, mobile
-              development, and emerging technologies.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-gray-100">
-                Backend & APIs
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {['Node.js', 'API Design', 'Microservices', 'Database Design'].map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-gray-100">
-                Frontend & Mobile
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {['React', 'React Native', 'Next.js', 'TypeScript'].map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded bg-green-100 px-2 py-1 text-xs text-green-800 dark:bg-green-900 dark:text-green-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-gray-100">Specialized</h3>
-              <div className="flex flex-wrap gap-2">
-                {['Blockchain', 'AI/ML', 'Computer Vision', 'Fintech'].map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded bg-purple-100 px-2 py-1 text-xs text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-gray-100">
-                Infrastructure
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {['Cloud Services', 'DevOps', 'Security', 'Compliance'].map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Contact CTA */}
