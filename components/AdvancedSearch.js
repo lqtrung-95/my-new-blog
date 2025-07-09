@@ -313,40 +313,6 @@ const AdvancedSearch = ({ posts, onSearchResults, className = '' }) => {
               </div>
             </div>
 
-            {/* Reading Time Filter */}
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Reading Time (minutes)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.readingTime?.min || ''}
-                  onChange={(e) =>
-                    updateFilter('readingTime', {
-                      ...filters.readingTime,
-                      min: e.target.value ? parseInt(e.target.value) : undefined,
-                    })
-                  }
-                  className="w-20 rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                />
-                <span className="text-gray-500 dark:text-gray-400">to</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.readingTime?.max || ''}
-                  onChange={(e) =>
-                    updateFilter('readingTime', {
-                      ...filters.readingTime,
-                      max: e.target.value ? parseInt(e.target.value) : undefined,
-                    })
-                  }
-                  className="w-20 rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                />
-              </div>
-            </div>
-
             {/* Clear Filters */}
             {hasActiveFilters && (
               <div className="border-t border-gray-200 pt-2 dark:border-gray-600">

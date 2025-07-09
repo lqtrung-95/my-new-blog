@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import Link from './Link'
 import headerNavLinks from '@/data/headerNavLinks'
+import { useSearch } from './SearchProvider'
 
 const MobileNav = () => {
   const [navShow, setNavShow] = useState(false)
+  const { openSearch } = useSearch()
 
   const onToggleNav = () => {
     setNavShow((status) => {
@@ -15,6 +17,11 @@ const MobileNav = () => {
       }
       return !status
     })
+  }
+
+  const handleSearchClick = () => {
+    onToggleNav() // Close mobile menu
+    openSearch() // Open search
   }
 
   return (
@@ -65,6 +72,24 @@ const MobileNav = () => {
           </button>
         </div>
         <nav className="fixed mt-8 h-full">
+          {/* Search Option */}
+          <div className="px-12 py-4">
+            <button
+              onClick={handleSearchClick}
+              className="flex items-center gap-3 text-2xl font-bold tracking-widest text-gray-900 dark:text-gray-100"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              Search
+            </button>
+          </div>
+
           {headerNavLinks.map((link) => (
             <div key={link.title} className="px-12 py-4">
               <Link

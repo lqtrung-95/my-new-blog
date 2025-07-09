@@ -45,12 +45,37 @@ const LayoutWrapper = ({ children }) => {
               ))}
             </div>
 
-            {/* Search Button */}
+            {/* Search Button with Keyboard Shortcut Hint */}
+            <div className="relative hidden sm:block">
+              <button
+                onClick={openSearch}
+                className="group flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200"
+                aria-label="Search articles"
+                title="Search articles"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <span className="text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400">
+                  Search...
+                </span>
+                <kbd className="ml-auto hidden rounded bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-400 lg:inline-block">
+                  ⌘K
+                </kbd>
+              </button>
+            </div>
+
+            {/* Mobile Search Button */}
             <button
               onClick={openSearch}
-              className="rounded-md p-2 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200"
+              className="rounded-md p-2 text-gray-500 transition-colors hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-400 dark:hover:text-gray-200 sm:hidden"
               aria-label="Search articles"
-              title="Search articles (Cmd+K)"
+              title="Search articles"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
