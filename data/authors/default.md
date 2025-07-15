@@ -3,7 +3,7 @@ name: Trung Le
 avatar: /static/images/avatar-linkedin.jpeg
 occupation: Frontend Engineer
 company: Binance
-email: letrung95@gmail.com
+email: lqtrung.dev@gmail.com
 linkedin: https://www.linkedin.com/in/trungle-3195/
 ---
 
