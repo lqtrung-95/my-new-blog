@@ -232,7 +232,7 @@ const GlobalSearch = ({ posts, isOpen, onClose }) => {
                         <h4 className="line-clamp-1 text-sm font-medium text-gray-900 dark:text-gray-100">
                           {highlightText(post.title, query)}
                         </h4>
-                        <p className="line-clamp-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
                           {highlightText(post.summary || '', query)}
                         </p>
                         <div className="mt-2 flex items-center space-x-2">
@@ -288,7 +288,6 @@ const GlobalSearch = ({ posts, isOpen, onClose }) => {
                   <span>to close</span>
                 </div>
               </div>
-              <div className="text-xs">Powered by advanced search</div>
             </div>
           </div>
         </div>
