@@ -1,0 +1,1445 @@
+---
+title: 'Web Performance Optimization: The Complete Guide to Faster Loading and Better Core Web Vitals'
+date: '2025-07-05'
+tags: ['Performance', 'Web Vitals', 'React', 'Optimization', 'Frontend']
+draft: false
+summary: 'Master web performance optimization with proven techniques for faster loading, better Core Web Vitals, and superior user experience. Covers general web apps and React-specific optimizations.'
+images: []
+layout: PostLayout
+canonicalUrl:
+---
+
+Web performance directly impacts user experience, conversion rates, and search rankings. A 1-second delay in page load time can reduce conversions by 7% and increase bounce rates by 32%. Today, we'll explore comprehensive strategies to optimize your web applications for speed, focusing on Core Web Vitals and real-world performance gains.
+
+## Understanding Core Web Vitals
+
+Google's Core Web Vitals are the essential metrics that measure real user experience:
+
+### The Three Pillars
+
+| Metric                             | What It Measures    | Good Score | Impact                                 |
+| ---------------------------------- | ------------------- | ---------- | -------------------------------------- |
+| **LCP** (Largest Contentful Paint) | Loading performance | ≤ 2.5s     | How quickly main content loads         |
+| **FID** (First Input Delay)        | Interactivity       | ≤ 100ms    | Responsiveness to user interactions    |
+| **CLS** (Cumulative Layout Shift)  | Visual stability    | ≤ 0.1      | How much content shifts during loading |
+
+### Why These Metrics Matter
+
+```javascript
+// Real impact on business metrics
+const performanceImpact = {
+  LCP: {
+    '2.5s vs 4s': '19% reduction in bounce rate',
+    optimized: '15% increase in conversions',
+  },
+  FID: {
+    '100ms vs 300ms': '24% increase in user engagement',
+    optimized: '13% improvement in task completion',
+  },
+  CLS: {
+    'low vs high': '25% reduction in user frustration',
+    optimized: '11% increase in page views',
+  },
+}
+```
+
+## 🚀 Universal Performance Techniques
+
+### 1. Critical Resource Optimization
+
+**HTML Optimization**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Critical CSS inlined -->
+    <style>
+      /* Above-the-fold critical styles */
+      .header {
+        background: #fff;
+        height: 60px;
+      }
+      .hero {
+        min-height: 400px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+    </style>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/api/hero-data" as="fetch" crossorigin />
+
+    <!-- DNS prefetch for external domains -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//api.analytics.com" />
+
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <title>Fast Loading Website</title>
+  </head>
+  <body>
+    <!-- Critical above-the-fold content -->
+    <header class="header">...</header>
+    <main class="hero">...</main>
+
+    <!-- Non-critical CSS loaded asynchronously -->
+    <link
+      rel="preload"
+      href="/css/non-critical.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript><link rel="stylesheet" href="/css/non-critical.css" /></noscript>
+  </body>
+</html>
+```
+
+**CSS Performance**
+
+```css
+/* Optimize CSS for performance */
+
+/* Use efficient selectors */
+.btn-primary {
+  /* Good: class selector */
+}
+#header .nav > li:nth-child(3) {
+  /* Avoid: complex selectors */
+}
+
+/* Minimize reflows and repaints */
+.optimized-animation {
+  /* Use transform instead of changing layout properties */
+  transform: translateX(100px);
+  /* Use opacity instead of visibility */
+  opacity: 0;
+  /* Enable hardware acceleration */
+  will-change: transform, opacity;
+  /* Use efficient transitions */
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+/* Critical path CSS */
+.above-fold {
+  /* Inline critical styles */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Font loading optimization */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-var.woff2') format('woff2');
+  font-display: swap; /* Improve FCP */
+  font-weight: 100 900;
+}
+
+/* Responsive images with aspect ratio */
+.responsive-image {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+}
+```
+
+### 2. Image Optimization Strategies
+
+**Modern Image Formats and Responsive Loading**
+
+```html
+<!-- WebP with fallbacks -->
+<picture>
+  <source
+    srcset="/images/hero-400.webp 400w, /images/hero-800.webp 800w, /images/hero-1200.webp 1200w"
+    sizes="(max-width: 768px) 400px,
+           (max-width: 1024px) 800px,
+           1200px"
+    type="image/webp"
+  />
+  <source
+    srcset="/images/hero-400.jpg 400w, /images/hero-800.jpg 800w, /images/hero-1200.jpg 1200w"
+    sizes="(max-width: 768px) 400px,
+           (max-width: 1024px) 800px,
+           1200px"
+  />
+  <img
+    src="/images/hero-800.jpg"
+    alt="Hero image"
+    width="1200"
+    height="600"
+    loading="lazy"
+    decoding="async"
+  />
+</picture>
+
+<!-- Lazy loading with intersection observer -->
+<img
+  data-src="/images/lazy-image.jpg"
+  alt="Lazy loaded image"
+  class="lazy-image"
+  width="400"
+  height="300"
+/>
+```
+
+**JavaScript Image Optimization**
+
+```javascript
+// Advanced lazy loading implementation
+class LazyImageLoader {
+  constructor() {
+    this.imageObserver = new IntersectionObserver(this.handleIntersection.bind(this), {
+      rootMargin: '50px 0px', // Start loading 50px before entering viewport
+      threshold: 0.01,
+    })
+
+    this.init()
+  }
+
+  init() {
+    const lazyImages = document.querySelectorAll('.lazy-image')
+    lazyImages.forEach((img) => this.imageObserver.observe(img))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const img = entry.target
+        this.loadImage(img)
+        this.imageObserver.unobserve(img)
+      }
+    })
+  }
+
+  async loadImage(img) {
+    const src = img.dataset.src
+    if (!src) return
+
+    try {
+      // Preload the image
+      const imageLoader = new Image()
+      imageLoader.src = src
+
+      await new Promise((resolve, reject) => {
+        imageLoader.onload = resolve
+        imageLoader.onerror = reject
+      })
+
+      // Apply the image with fade-in effect
+      img.src = src
+      img.classList.add('loaded')
+
+      // Remove data attribute to clean up
+      delete img.dataset.src
+    } catch (error) {
+      console.error('Failed to load image:', src, error)
+      img.classList.add('error')
+    }
+  }
+}
+
+// Initialize lazy loading
+document.addEventListener('DOMContentLoaded', () => {
+  new LazyImageLoader()
+})
+
+// WebP support detection and dynamic loading
+const supportsWebP = () => {
+  return new Promise((resolve) => {
+    const webP = new Image()
+    webP.onload = webP.onerror = () => resolve(webP.height === 2)
+    webP.src =
+      'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA'
+  })
+}
+
+// Dynamic image format selection
+const optimizeImageSrc = async (baseSrc) => {
+  const hasWebPSupport = await supportsWebP()
+  const extension = hasWebPSupport ? 'webp' : 'jpg'
+  return baseSrc.replace(/\.(jpg|jpeg|png)$/, `.${extension}`)
+}
+```
+
+### 3. JavaScript Optimization
+
+**Code Splitting and Lazy Loading**
+
+```javascript
+// Dynamic imports for code splitting
+const loadFeature = async (featureName) => {
+  try {
+    const feature = await import(`./features/${featureName}`)
+    return feature.default
+  } catch (error) {
+    console.error(`Failed to load feature: ${featureName}`, error)
+    // Fallback or error handling
+    return null
+  }
+}
+
+// Route-based code splitting
+const routes = {
+  '/dashboard': () => import('./pages/Dashboard'),
+  '/profile': () => import('./pages/Profile'),
+  '/settings': () => import('./pages/Settings'),
+}
+
+// Preload critical routes
+const preloadRoute = (path) => {
+  if (routes[path]) {
+    routes[path]().catch(console.error)
+  }
+}
+
+// Preload on hover for better perceived performance
+document.addEventListener('mouseover', (e) => {
+  const link = e.target.closest('a[href]')
+  if (link && routes[link.pathname]) {
+    preloadRoute(link.pathname)
+  }
+})
+
+// Service Worker for aggressive caching
+const registerServiceWorker = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js')
+      console.log('SW registered:', registration)
+    } catch (error) {
+      console.error('SW registration failed:', error)
+    }
+  }
+}
+
+// Resource loading prioritization
+const loadResourcesInOrder = async () => {
+  // Load critical resources first
+  await Promise.all([import('./core/essential-lib'), fetch('/api/critical-data')])
+
+  // Then load secondary resources
+  setTimeout(() => {
+    import('./features/analytics')
+    import('./features/chat-widget')
+  }, 1000)
+}
+```
+
+**Performance Monitoring**
+
+```javascript
+// Web Vitals measurement
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals'
+
+class PerformanceMonitor {
+  constructor() {
+    this.metrics = new Map()
+    this.initializeTracking()
+  }
+
+  initializeTracking() {
+    // Track Core Web Vitals
+    getCLS(this.handleMetric.bind(this))
+    getFID(this.handleMetric.bind(this))
+    getFCP(this.handleMetric.bind(this))
+    getLCP(this.handleMetric.bind(this))
+    getTTFB(this.handleMetric.bind(this))
+
+    // Track custom metrics
+    this.trackResourceLoading()
+    this.trackUserInteractions()
+  }
+
+  handleMetric(metric) {
+    this.metrics.set(metric.name, metric.value)
+
+    // Send to analytics
+    this.sendToAnalytics(metric)
+
+    // Log poor performance
+    if (this.isMetricPoor(metric)) {
+      console.warn(`Poor ${metric.name}: ${metric.value}`)
+      this.sendAlert(metric)
+    }
+  }
+
+  isMetricPoor(metric) {
+    const thresholds = {
+      LCP: 2500,
+      FID: 100,
+      CLS: 0.1,
+      FCP: 1800,
+      TTFB: 800,
+    }
+    return metric.value > thresholds[metric.name]
+  }
+
+  trackResourceLoading() {
+    // Monitor resource loading performance
+    new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.duration > 1000) {
+          // Slow resource
+          console.warn('Slow resource:', entry.name, entry.duration)
+        }
+      })
+    }).observe({ entryTypes: ['resource'] })
+  }
+
+  trackUserInteractions() {
+    // Track interaction delays
+    new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.processingStart - entry.startTime > 100) {
+          console.warn('Slow interaction:', entry)
+        }
+      })
+    }).observe({ entryTypes: ['event'] })
+  }
+
+  sendToAnalytics(metric) {
+    // Send to your analytics service
+    if (window.gtag) {
+      gtag('event', metric.name, {
+        value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+        event_category: 'Web Vitals',
+      })
+    }
+  }
+
+  generateReport() {
+    return {
+      timestamp: Date.now(),
+      metrics: Object.fromEntries(this.metrics),
+      navigation: performance.getEntriesByType('navigation')[0],
+      resources: performance.getEntriesByType('resource').length,
+    }
+  }
+}
+
+// Initialize performance monitoring
+const performanceMonitor = new PerformanceMonitor()
+```
+
+## ⚛️ React-Specific Optimizations
+
+### 1. Component Optimization
+
+**React.memo and Memoization**
+
+```jsx
+// Optimized component with React.memo
+import React, { memo, useMemo, useCallback } from 'react'
+
+const ExpensiveComponent = memo(
+  ({ items, onItemClick, filter }) => {
+    // Memoize expensive calculations
+    const filteredItems = useMemo(() => {
+      return items.filter((item) => {
+        return item.category.includes(filter) && item.isActive
+      })
+    }, [items, filter])
+
+    // Memoize expensive transformations
+    const processedItems = useMemo(() => {
+      return filteredItems.map((item) => ({
+        ...item,
+        displayName: item.name.toUpperCase(),
+        formattedPrice: new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }).format(item.price),
+      }))
+    }, [filteredItems])
+
+    // Memoize event handlers
+    const handleItemClick = useCallback(
+      (itemId) => {
+        onItemClick(itemId)
+      },
+      [onItemClick]
+    )
+
+    return (
+      <div className="item-list">
+        {processedItems.map((item) => (
+          <ItemCard key={item.id} item={item} onClick={handleItemClick} />
+        ))}
+      </div>
+    )
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison for memo
+    return (
+      prevProps.items === nextProps.items &&
+      prevProps.filter === nextProps.filter &&
+      prevProps.onItemClick === nextProps.onItemClick
+    )
+  }
+)
+
+// Optimized child component
+const ItemCard = memo(({ item, onClick }) => {
+  const handleClick = useCallback(() => {
+    onClick(item.id)
+  }, [onClick, item.id])
+
+  return (
+    <div className="item-card" onClick={handleClick}>
+      <h3>{item.displayName}</h3>
+      <p>{item.formattedPrice}</p>
+    </div>
+  )
+})
+```
+
+### 2. State Management Optimization
+
+**Context Optimization**
+
+```jsx
+// Split contexts for better performance
+import React, { createContext, useContext, useReducer, useMemo } from 'react'
+
+// Separate read and write contexts to prevent unnecessary re-renders
+const StateContext = createContext()
+const DispatchContext = createContext()
+
+// Optimized provider with memoized value
+export const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(appReducer, initialState)
+
+  // Memoize context values to prevent unnecessary re-renders
+  const memoizedState = useMemo(() => state, [state])
+  const memoizedDispatch = useMemo(() => dispatch, [dispatch])
+
+  return (
+    <StateContext.Provider value={memoizedState}>
+      <DispatchContext.Provider value={memoizedDispatch}>{children}</DispatchContext.Provider>
+    </StateContext.Provider>
+  )
+}
+
+// Optimized hooks
+export const useAppState = () => {
+  const context = useContext(StateContext)
+  if (!context) {
+    throw new Error('useAppState must be used within AppProvider')
+  }
+  return context
+}
+
+export const useAppDispatch = () => {
+  const context = useContext(DispatchContext)
+  if (!context) {
+    throw new Error('useAppDispatch must be used within AppProvider')
+  }
+  return context
+}
+
+// Selector hook for granular subscriptions
+export const useAppSelector = (selector) => {
+  const state = useAppState()
+  return useMemo(() => selector(state), [state, selector])
+}
+
+// Usage with selectors to minimize re-renders
+const UserProfile = () => {
+  const user = useAppSelector((state) => state.user)
+  const isLoading = useAppSelector((state) => state.ui.isLoading)
+
+  // Only re-renders when user or loading state changes
+  return <div>{isLoading ? <Spinner /> : <UserDetails user={user} />}</div>
+}
+```
+
+### 3. Bundle Optimization
+
+**Webpack Configuration for React**
+
+```javascript
+// webpack.config.js - Production optimizations
+const path = require('path')
+const webpack = require('webpack')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const CompressionPlugin = require('compression-webpack-plugin')
+
+module.exports = {
+  mode: 'production',
+
+  entry: {
+    main: './src/index.js',
+    vendor: ['react', 'react-dom'], // Separate vendor bundle
+  },
+
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].chunk.js',
+    clean: true,
+  },
+
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          priority: 5,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+    runtimeChunk: 'single',
+    usedExports: true,
+    sideEffects: false,
+  },
+
+  plugins: [
+    // Analyze bundle size
+    new BundleAnalyzerPlugin({
+      analyzerMode: process.env.ANALYZE ? 'server' : 'disabled',
+    }),
+
+    // Gzip compression
+    new CompressionPlugin({
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 8192,
+      minRatio: 0.8,
+    }),
+
+    // Define environment variables
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
+  ],
+
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [['@babel/preset-env', { modules: false }], '@babel/preset-react'],
+            plugins: [
+              '@babel/plugin-syntax-dynamic-import',
+              'babel-plugin-transform-react-remove-prop-types',
+            ],
+          },
+        },
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
+      },
+    ],
+  },
+}
+```
+
+### 4. React Suspense and Concurrent Features
+
+**Optimized Loading with Suspense**
+
+```jsx
+import React, { Suspense, lazy, useState, useTransition } from 'react'
+
+// Lazy load components
+const Dashboard = lazy(() => import('./Dashboard'))
+const Profile = lazy(() => import('./Profile'))
+const Settings = lazy(() => import('./Settings'))
+
+// Optimized loading component
+const LoadingFallback = ({ text = 'Loading...' }) => (
+  <div className="loading-container">
+    <div className="loading-spinner" />
+    <p>{text}</p>
+  </div>
+)
+
+// Route-based code splitting with preloading
+const App = () => {
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [isPending, startTransition] = useTransition()
+
+  const handleTabChange = (newTab) => {
+    // Use transition for non-urgent updates
+    startTransition(() => {
+      setActiveTab(newTab)
+    })
+  }
+
+  // Preload components on hover
+  const preloadComponent = (componentName) => {
+    switch (componentName) {
+      case 'profile':
+        import('./Profile')
+        break
+      case 'settings':
+        import('./Settings')
+        break
+    }
+  }
+
+  return (
+    <div className="app">
+      <nav>
+        <button
+          onClick={() => handleTabChange('dashboard')}
+          onMouseEnter={() => preloadComponent('dashboard')}
+        >
+          Dashboard
+        </button>
+        <button
+          onClick={() => handleTabChange('profile')}
+          onMouseEnter={() => preloadComponent('profile')}
+        >
+          Profile
+        </button>
+        <button
+          onClick={() => handleTabChange('settings')}
+          onMouseEnter={() => preloadComponent('settings')}
+        >
+          Settings
+        </button>
+      </nav>
+
+      <main className={isPending ? 'loading' : ''}>
+        <Suspense fallback={<LoadingFallback />}>
+          {activeTab === 'dashboard' && <Dashboard />}
+          {activeTab === 'profile' && <Profile />}
+          {activeTab === 'settings' && <Settings />}
+        </Suspense>
+      </main>
+    </div>
+  )
+}
+
+// Optimized data fetching with Suspense
+const DataComponent = ({ userId }) => {
+  // This would integrate with a data fetching library like SWR or React Query
+  const user = useSuspenseQuery(['user', userId], () => fetchUser(userId))
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  )
+}
+```
+
+### 5. Virtual Scrolling for Large Lists
+
+**Optimized List Rendering**
+
+```jsx
+import React, { useState, useMemo, useCallback } from 'react'
+import { FixedSizeList as List } from 'react-window'
+
+const VirtualizedList = ({ items, onItemClick }) => {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Memoize filtered items
+  const filteredItems = useMemo(() => {
+    if (!searchTerm) return items
+    return items.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  }, [items, searchTerm])
+
+  // Memoized row renderer
+  const Row = useCallback(
+    ({ index, style }) => {
+      const item = filteredItems[index]
+
+      return (
+        <div style={style} className="list-item">
+          <div className="item-content" onClick={() => onItemClick(item)}>
+            <h3>{item.name}</h3>
+            <p>{item.description}</p>
+          </div>
+        </div>
+      )
+    },
+    [filteredItems, onItemClick]
+  )
+
+  return (
+    <div className="virtualized-container">
+      <input
+        type="text"
+        placeholder="Search items..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
+
+      <List
+        height={600} // Container height
+        itemCount={filteredItems.length}
+        itemSize={80} // Height of each item
+        overscanCount={5} // Render extra items for smooth scrolling
+      >
+        {Row}
+      </List>
+    </div>
+  )
+}
+
+// Alternative: Dynamic size list for variable height items
+import { VariableSizeList } from 'react-window'
+
+const DynamicList = ({ items }) => {
+  const getItemSize = useCallback(
+    (index) => {
+      const item = items[index]
+      // Calculate size based on content
+      return item.description.length > 100 ? 120 : 80
+    },
+    [items]
+  )
+
+  const Row = useCallback(
+    ({ index, style }) => {
+      const item = items[index]
+
+      return (
+        <div style={style} className="dynamic-list-item">
+          <h3>{item.name}</h3>
+          <p>{item.description}</p>
+        </div>
+      )
+    },
+    [items]
+  )
+
+  return (
+    <VariableSizeList
+      height={600}
+      itemCount={items.length}
+      itemSize={getItemSize}
+      overscanCount={5}
+    >
+      {Row}
+    </VariableSizeList>
+  )
+}
+```
+
+## 🌐 Advanced Performance Strategies
+
+### 1. Service Worker Implementation
+
+**Comprehensive Caching Strategy**
+
+```javascript
+// sw.js - Service Worker with advanced caching
+const CACHE_NAME = 'app-v1.2.0'
+const RUNTIME_CACHE = 'runtime-cache'
+
+// Cache strategies for different resource types
+const CACHE_STRATEGIES = {
+  images: 'CacheFirst',
+  api: 'NetworkFirst',
+  static: 'StaleWhileRevalidate',
+}
+
+// Install event - cache critical resources
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll([
+        '/',
+        '/static/css/main.css',
+        '/static/js/main.js',
+        '/manifest.json',
+        '/offline.html',
+      ])
+    })
+  )
+  self.skipWaiting()
+})
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE)
+          .map((cacheName) => caches.delete(cacheName))
+      )
+    })
+  )
+  self.clients.claim()
+})
+
+// Fetch event - implement caching strategies
+self.addEventListener('fetch', (event) => {
+  const { request } = event
+  const url = new URL(request.url)
+
+  // Skip cross-origin requests
+  if (!url.origin === location.origin) return
+
+  // Handle different request types
+  if (request.destination === 'image') {
+    event.respondWith(handleImageRequest(request))
+  } else if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(request))
+  } else {
+    event.respondWith(handleStaticRequest(request))
+  }
+})
+
+// Cache-first strategy for images
+async function handleImageRequest(request) {
+  const cache = await caches.open(RUNTIME_CACHE)
+  const cachedResponse = await cache.match(request)
+
+  if (cachedResponse) {
+    return cachedResponse
+  }
+
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone())
+    }
+    return networkResponse
+  } catch (error) {
+    // Return placeholder image for failed requests
+    return caches.match('/images/placeholder.png')
+  }
+}
+
+// Network-first strategy for API requests
+async function handleApiRequest(request) {
+  const cache = await caches.open(RUNTIME_CACHE)
+
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone())
+    }
+    return networkResponse
+  } catch (error) {
+    const cachedResponse = await cache.match(request)
+    if (cachedResponse) {
+      return cachedResponse
+    }
+    // Return offline response
+    return new Response(JSON.stringify({ error: 'Offline' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+}
+
+// Stale-while-revalidate for static assets
+async function handleStaticRequest(request) {
+  const cache = await caches.open(RUNTIME_CACHE)
+  const cachedResponse = await cache.match(request)
+
+  // Return cached version immediately
+  if (cachedResponse) {
+    // Update cache in background
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          cache.put(request, response)
+        }
+      })
+      .catch(() => {})
+
+    return cachedResponse
+  }
+
+  // If not cached, fetch from network
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone())
+    }
+    return networkResponse
+  } catch (error) {
+    // Return offline page for navigation requests
+    if (request.destination === 'document') {
+      return caches.match('/offline.html')
+    }
+    throw error
+  }
+}
+```
+
+### 2. Progressive Web App Features
+
+**App Shell Architecture**
+
+```javascript
+// Progressive loading strategy
+class AppShell {
+  constructor() {
+    this.criticalResources = ['/css/critical.css', '/js/app-shell.js', '/images/logo.svg']
+    this.init()
+  }
+
+  async init() {
+    // Load critical resources first
+    await this.loadCriticalResources()
+
+    // Initialize app shell
+    this.renderAppShell()
+
+    // Load remaining resources progressively
+    this.loadSecondaryResources()
+  }
+
+  async loadCriticalResources() {
+    const promises = this.criticalResources.map((url) => {
+      return new Promise((resolve, reject) => {
+        if (url.endsWith('.css')) {
+          const link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = url
+          link.onload = resolve
+          link.onerror = reject
+          document.head.appendChild(link)
+        } else if (url.endsWith('.js')) {
+          const script = document.createElement('script')
+          script.src = url
+          script.onload = resolve
+          script.onerror = reject
+          document.head.appendChild(script)
+        } else {
+          // Preload other resources
+          const link = document.createElement('link')
+          link.rel = 'preload'
+          link.href = url
+          link.as = this.getResourceType(url)
+          link.onload = resolve
+          link.onerror = reject
+          document.head.appendChild(link)
+        }
+      })
+    })
+
+    return Promise.all(promises)
+  }
+
+  renderAppShell() {
+    // Render basic app structure
+    document.body.innerHTML = `
+      <div id="app-shell">
+        <header class="app-header">
+          <div class="logo"></div>
+          <nav class="main-nav"></nav>
+        </header>
+        <main id="content" class="app-content">
+          <div class="loading-skeleton"></div>
+        </main>
+        <footer class="app-footer"></footer>
+      </div>
+    `
+  }
+
+  loadSecondaryResources() {
+    // Load non-critical resources with priority
+    const secondaryResources = [
+      { url: '/js/analytics.js', priority: 'low' },
+      { url: '/js/features.js', priority: 'high' },
+      { url: '/css/animations.css', priority: 'low' },
+    ]
+
+    secondaryResources
+      .sort((a, b) => (a.priority === 'high' ? -1 : 1))
+      .forEach((resource) => this.loadResource(resource.url))
+  }
+
+  getResourceType(url) {
+    if (url.endsWith('.css')) return 'style'
+    if (url.endsWith('.js')) return 'script'
+    if (url.match(/\.(jpg|jpeg|png|webp|svg)$/)) return 'image'
+    if (url.endsWith('.woff2')) return 'font'
+    return 'fetch'
+  }
+}
+
+// Initialize app shell
+new AppShell()
+```
+
+### 3. Advanced Monitoring and Analytics
+
+**Real User Monitoring (RUM)**
+
+```javascript
+// Comprehensive performance monitoring
+class RealUserMonitoring {
+  constructor() {
+    this.metrics = new Map()
+    this.sessionId = this.generateSessionId()
+    this.init()
+  }
+
+  init() {
+    this.trackPageLoad()
+    this.trackUserInteractions()
+    this.trackResourceErrors()
+    this.trackMemoryUsage()
+    this.setupBeaconReporting()
+  }
+
+  trackPageLoad() {
+    window.addEventListener('load', () => {
+      // Navigation timing
+      const navigation = performance.getEntriesByType('navigation')[0]
+
+      this.metrics.set('page_load', {
+        dns_lookup: navigation.domainLookupEnd - navigation.domainLookupStart,
+        tcp_connect: navigation.connectEnd - navigation.connectStart,
+        server_response: navigation.responseEnd - navigation.requestStart,
+        dom_parse: navigation.domContentLoadedEventEnd - navigation.responseEnd,
+        resource_load: navigation.loadEventEnd - navigation.domContentLoadedEventEnd,
+        total_load_time: navigation.loadEventEnd - navigation.navigationStart,
+      })
+
+      // Send initial metrics
+      this.reportMetrics()
+    })
+  }
+
+  trackUserInteractions() {
+    // Track long tasks
+    new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.duration > 50) {
+          this.metrics.set(`long_task_${Date.now()}`, {
+            duration: entry.duration,
+            start_time: entry.startTime,
+            attribution: entry.attribution,
+          })
+        }
+      })
+    }).observe({ entryTypes: ['longtask'] })
+
+    // Track input delay
+    let isFirstInteraction = true
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (isFirstInteraction) {
+          this.metrics.set('first_input_delay', {
+            delay: entry.processingStart - entry.startTime,
+            duration: entry.duration,
+            target: entry.target?.tagName || 'unknown',
+          })
+          isFirstInteraction = false
+        }
+      })
+    })
+
+    observer.observe({ entryTypes: ['first-input'] })
+  }
+
+  trackResourceErrors() {
+    window.addEventListener('error', (event) => {
+      this.metrics.set(`resource_error_${Date.now()}`, {
+        type: 'resource',
+        source: event.filename || event.target?.src || event.target?.href,
+        message: event.message,
+        timestamp: Date.now(),
+      })
+    })
+
+    // Track unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      this.metrics.set(`promise_error_${Date.now()}`, {
+        type: 'promise_rejection',
+        reason: event.reason,
+        timestamp: Date.now(),
+      })
+    })
+  }
+
+  trackMemoryUsage() {
+    if ('memory' in performance) {
+      setInterval(() => {
+        const memory = performance.memory
+        this.metrics.set('memory_usage', {
+          used: memory.usedJSHeapSize,
+          total: memory.totalJSHeapSize,
+          limit: memory.jsHeapSizeLimit,
+          timestamp: Date.now(),
+        })
+      }, 30000) // Every 30 seconds
+    }
+  }
+
+  setupBeaconReporting() {
+    // Send metrics when page is about to unload
+    window.addEventListener('beforeunload', () => {
+      this.sendBeacon()
+    })
+
+    // Also send metrics periodically
+    setInterval(() => {
+      this.reportMetrics()
+    }, 60000) // Every minute
+  }
+
+  reportMetrics() {
+    const payload = {
+      session_id: this.sessionId,
+      url: window.location.href,
+      user_agent: navigator.userAgent,
+      timestamp: Date.now(),
+      metrics: Object.fromEntries(this.metrics),
+    }
+
+    // Send to analytics endpoint
+    fetch('/api/analytics/performance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(console.error)
+  }
+
+  sendBeacon() {
+    const payload = JSON.stringify({
+      session_id: this.sessionId,
+      final_metrics: Object.fromEntries(this.metrics),
+      session_duration: Date.now() - this.sessionStart,
+    })
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/analytics/session-end', payload)
+    }
+  }
+
+  generateSessionId() {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36)
+  }
+}
+
+// Initialize monitoring
+new RealUserMonitoring()
+```
+
+## 📊 Performance Testing and Measurement
+
+### Automated Performance Testing
+
+```javascript
+// Performance testing with Lighthouse CI
+// .lighthouserc.js
+module.exports = {
+  ci: {
+    collect: {
+      url: ['http://localhost:3000', 'http://localhost:3000/dashboard'],
+      numberOfRuns: 3
+    },
+    assert: {
+      assertions: {
+        'categories:performance': ['error', { minScore: 0.9 }],
+        'categories:accessibility': ['error', { minScore: 0.9 }],
+        'categories:best-practices': ['error', { minScore: 0.9 }],
+        'categories:seo': ['error', { minScore: 0.9 }],
+        'first-contentful-paint': ['error', { maxNumericValue: 2000 }],
+        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }]
+      }
+    },
+    upload: {
+      target: 'temporary-public-storage'
+    }
+  }
+}
+
+// Package.json scripts
+{
+  "scripts": {
+    "perf:test": "lhci autorun",
+    "perf:local": "lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html",
+    "analyze:bundle": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js"
+  }
+}
+```
+
+### Performance Budget Configuration
+
+```javascript
+// webpack.config.js - Performance budgets
+module.exports = {
+  // ... other config
+  performance: {
+    maxAssetSize: 250000, // 250kb
+    maxEntrypointSize: 400000, // 400kb
+    hints: 'error',
+    assetFilter: (assetFilename) => {
+      // Only check JS and CSS files
+      return assetFilename.endsWith('.js') || assetFilename.endsWith('.css')
+    },
+  },
+}
+
+// Custom performance budget checker
+const fs = require('fs')
+const path = require('path')
+
+class PerformanceBudgetChecker {
+  constructor(budgets) {
+    this.budgets = budgets
+  }
+
+  check(buildDir) {
+    const results = []
+
+    Object.entries(this.budgets).forEach(([pattern, budget]) => {
+      const files = this.findFiles(buildDir, pattern)
+
+      files.forEach((file) => {
+        const size = fs.statSync(file).size
+        const result = {
+          file: path.relative(buildDir, file),
+          size,
+          budget,
+          pass: size <= budget,
+          overage: Math.max(0, size - budget),
+        }
+        results.push(result)
+      })
+    })
+
+    return results
+  }
+
+  findFiles(dir, pattern) {
+    const files = []
+    const regex = new RegExp(pattern)
+
+    const traverse = (currentDir) => {
+      fs.readdirSync(currentDir).forEach((item) => {
+        const fullPath = path.join(currentDir, item)
+        const stat = fs.statSync(fullPath)
+
+        if (stat.isDirectory()) {
+          traverse(fullPath)
+        } else if (regex.test(item)) {
+          files.push(fullPath)
+        }
+      })
+    }
+
+    traverse(dir)
+    return files
+  }
+}
+
+// Usage
+const budgets = {
+  'main\\.[a-f0-9]+\\.js$': 200000, // 200kb for main bundle
+  'vendor\\.[a-f0-9]+\\.js$': 300000, // 300kb for vendor bundle
+  '.*\\.css$': 50000, // 50kb for CSS files
+}
+
+const checker = new PerformanceBudgetChecker(budgets)
+const results = checker.check('./build')
+
+results.forEach((result) => {
+  if (!result.pass) {
+    console.error(
+      `❌ ${result.file}: ${result.size} bytes (over budget by ${result.overage} bytes)`
+    )
+  } else {
+    console.log(`✅ ${result.file}: ${result.size} bytes`)
+  }
+})
+```
+
+## 🎯 Performance Optimization Checklist
+
+### Loading Performance
+
+- [ ] **Critical resource optimization** - Inline critical CSS, preload fonts
+- [ ] **Image optimization** - WebP format, responsive images, lazy loading
+- [ ] **Code splitting** - Route-based and component-based splitting
+- [ ] **Bundle optimization** - Tree shaking, minification, compression
+- [ ] **Caching strategy** - Service worker, HTTP caching, CDN
+- [ ] **Resource prioritization** - Critical resources first, preload key assets
+
+### Runtime Performance
+
+- [ ] **React optimization** - memo, useMemo, useCallback
+- [ ] **Virtual scrolling** - For large lists and tables
+- [ ] **Debouncing/throttling** - For search and scroll events
+- [ ] **Memory management** - Cleanup event listeners, intervals
+- [ ] **Efficient state updates** - Batch updates, avoid unnecessary renders
+- [ ] **Web Workers** - Offload heavy computations
+
+### User Experience
+
+- [ ] **Loading states** - Skeleton screens, progress indicators
+- [ ] **Error boundaries** - Graceful error handling
+- [ ] **Offline support** - Service worker caching
+- [ ] **Progressive enhancement** - Core functionality without JS
+- [ ] **Responsive design** - Mobile-first approach
+- [ ] **Accessibility** - Screen reader support, keyboard navigation
+
+### Monitoring and Testing
+
+- [ ] **Core Web Vitals** - LCP, FID, CLS tracking
+- [ ] **Real User Monitoring** - Performance in production
+- [ ] **Lighthouse CI** - Automated performance testing
+- [ ] **Performance budgets** - Size limits for assets
+- [ ] **Error tracking** - Monitor JavaScript errors
+- [ ] **Analytics integration** - Track performance metrics
+
+## Conclusion
+
+Web performance optimization is an ongoing process that requires attention to multiple layers of your application. By implementing these techniques, you can achieve:
+
+- **Faster loading times** that reduce bounce rates
+- **Better Core Web Vitals** that improve search rankings
+- **Enhanced user experience** that drives conversions
+- **Optimized resource usage** that reduces costs
+
+### Key Takeaways
+
+1. **Measure first** - Use tools like Lighthouse and Web Vitals
+2. **Optimize the critical path** - Focus on above-the-fold content
+3. **Implement progressive loading** - Load what's needed, when it's needed
+4. **Monitor continuously** - Performance is not a one-time fix
+5. **Test on real devices** - Emulators don't tell the whole story
+
+### Next Steps
+
+1. **Audit your current performance** using Lighthouse
+2. **Implement Core Web Vitals tracking** in your application
+3. **Set up performance budgets** in your build process
+4. **Create a performance testing strategy** for CI/CD
+5. **Monitor real user metrics** in production
+
+Remember: **Every millisecond matters.** Small optimizations compound to create significantly better user experiences and business outcomes.
+
+**Ready to make your web app blazingly fast? Start with the biggest impact items and work your way down! ⚡🚀**
