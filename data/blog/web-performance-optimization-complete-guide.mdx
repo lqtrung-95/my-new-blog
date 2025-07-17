@@ -11,6 +11,8 @@ canonicalUrl:
 
 Web performance directly impacts user experience, conversion rates, and search rankings. A 1-second delay in page load time can reduce conversions by 7% and increase bounce rates by 32%. Today, we'll explore comprehensive strategies to optimize your web applications for speed, focusing on Core Web Vitals and real-world performance gains.
 
+> 💡 **Note**: This guide contains detailed code examples. Look for expandable sections (▶️ click to expand) to view the complete implementations without overwhelming the reading experience.
+
 ## Understanding Core Web Vitals
 
 Google's Core Web Vitals are the essential metrics that measure real user experience:
@@ -48,6 +50,9 @@ const performanceImpact = {
 ### 1. Critical Resource Optimization
 
 **HTML Optimization**
+
+<details>
+<summary>📝 View complete HTML optimization example</summary>
 
 ```html
 <!DOCTYPE html>
@@ -103,7 +108,12 @@ const performanceImpact = {
 </html>
 ```
 
+</details>
+
 **CSS Performance**
+
+<details>
+<summary>🎨 View CSS optimization techniques</summary>
 
 ```css
 /* Optimize CSS for performance */
@@ -154,9 +164,14 @@ const performanceImpact = {
 }
 ```
 
+</details>
+
 ### 2. Image Optimization Strategies
 
 **Modern Image Formats and Responsive Loading**
+
+<details>
+<summary>🖼️ View responsive image HTML patterns</summary>
 
 ```html
 <!-- WebP with fallbacks -->
@@ -194,7 +209,12 @@ const performanceImpact = {
 />
 ```
 
+</details>
+
 **JavaScript Image Optimization**
+
+<details>
+<summary>⚡ View advanced lazy loading implementation</summary>
 
 ```javascript
 // Advanced lazy loading implementation
@@ -273,9 +293,14 @@ const optimizeImageSrc = async (baseSrc) => {
 }
 ```
 
+</details>
+
 ### 3. JavaScript Optimization
 
 **Code Splitting and Lazy Loading**
+
+<details>
+<summary>⚡ View code splitting and lazy loading implementation</summary>
 
 ```javascript
 // Dynamic imports for code splitting
@@ -337,7 +362,12 @@ const loadResourcesInOrder = async () => {
 }
 ```
 
+</details>
+
 **Performance Monitoring**
+
+<details>
+<summary>📊 View Web Vitals monitoring implementation</summary>
 
 ```javascript
 // Web Vitals measurement
@@ -433,11 +463,16 @@ class PerformanceMonitor {
 const performanceMonitor = new PerformanceMonitor()
 ```
 
+</details>
+
 ## ⚛️ React-Specific Optimizations
 
 ### 1. Component Optimization
 
 **React.memo and Memoization**
+
+<details>
+<summary>⚛️ View React memoization patterns</summary>
 
 ```jsx
 // Optimized component with React.memo
@@ -505,9 +540,14 @@ const ItemCard = memo(({ item, onClick }) => {
 })
 ```
 
+</details>
+
 ### 2. State Management Optimization
 
 **Context Optimization**
+
+<details>
+<summary>🔄 View context optimization patterns</summary>
 
 ```jsx
 // Split contexts for better performance
@@ -565,9 +605,14 @@ const UserProfile = () => {
 }
 ```
 
+</details>
+
 ### 3. Bundle Optimization
 
 **Webpack Configuration for React**
+
+<details>
+<summary>📦 View production webpack configuration</summary>
 
 ```javascript
 // webpack.config.js - Production optimizations
@@ -659,9 +704,14 @@ module.exports = {
 }
 ```
 
+</details>
+
 ### 4. React Suspense and Concurrent Features
 
 **Optimized Loading with Suspense**
+
+<details>
+<summary>⚡ View Suspense and concurrent features implementation</summary>
 
 ```jsx
 import React, { Suspense, lazy, useState, useTransition } from 'react'
@@ -751,9 +801,300 @@ const DataComponent = ({ userId }) => {
 }
 ```
 
-### 5. Virtual Scrolling for Large Lists
+</details>
+
+### 5. Normalized State Management
+
+**Optimized Data Structure for Performance**
+
+<details>
+<summary>🏗️ View complete normalized state implementation</summary>
+```javascript
+// ❌ Denormalized state - causes unnecessary re-renders
+const denormalizedState = {
+  posts: [
+    {
+      id: 1,
+      title: 'Post 1',
+      author: { id: 1, name: 'John', email: 'john@example.com' },
+      comments: [
+        { id: 1, text: 'Great post!', author: { id: 2, name: 'Jane' } },
+        { id: 2, text: 'Thanks!', author: { id: 1, name: 'John' } }
+      ]
+    }
+  ]
+}
+
+// ✅ Normalized state - better performance and easier updates
+const normalizedState = {
+entities: {
+users: {
+1: { id: 1, name: 'John', email: 'john@example.com' },
+2: { id: 2, name: 'Jane', email: 'jane@example.com' }
+},
+posts: {
+1: { id: 1, title: 'Post 1', authorId: 1, commentIds: [1, 2] }
+},
+comments: {
+1: { id: 1, text: 'Great post!', authorId: 2, postId: 1 },
+2: { id: 2, text: 'Thanks!', authorId: 1, postId: 1 }
+}
+},
+ui: {
+currentPostId: 1,
+loadingPosts: false
+}
+}
+
+// Normalized state utilities
+class StateNormalizer {
+static normalizeEntities(data, entityType) {
+return data.reduce((acc, item) => {
+acc[item.id] = item
+return acc
+}, {})
+}
+
+static denormalizeEntity(state, entityType, id) {
+const entity = state.entities[entityType][id]
+if (!entity) return null
+
+    // Recursively denormalize related entities
+    const denormalized = { ...entity }
+
+    Object.keys(entity).forEach(key => {
+      if (key.endsWith('Id')) {
+        const relatedType = key.slice(0, -2) + 's' // userId -> users
+        const relatedId = entity[key]
+        if (state.entities[relatedType]?.[relatedId]) {
+          denormalized[key.slice(0, -2)] = state.entities[relatedType][relatedId]
+        }
+      } else if (key.endsWith('Ids')) {
+        const relatedType = key.slice(0, -3) // commentIds -> comments
+        denormalized[relatedType] = entity[key].map(relatedId =>
+          state.entities[relatedType][relatedId]
+        ).filter(Boolean)
+      }
+    })
+
+    return denormalized
+
+}
+}
+
+// Selectors for normalized state
+const createPostSelector = (state, postId) => {
+return StateNormalizer.denormalizeEntity(state, 'posts', postId)
+}
+
+const createPostsSelector = (state) => {
+return Object.values(state.entities.posts).map(post =>
+StateNormalizer.denormalizeEntity(state, 'posts', post.id)
+)
+}
+
+// Redux Toolkit with normalization
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+
+const postsAdapter = createEntityAdapter()
+const usersAdapter = createEntityAdapter()
+const commentsAdapter = createEntityAdapter()
+
+const postsSlice = createSlice({
+name: 'posts',
+initialState: postsAdapter.getInitialState(),
+reducers: {
+addPost: postsAdapter.addOne,
+updatePost: postsAdapter.updateOne,
+removePost: postsAdapter.removeOne,
+setPosts: postsAdapter.setAll
+}
+})
+
+// Selectors with memoization
+export const {
+selectAll: selectAllPosts,
+selectById: selectPostById,
+selectIds: selectPostIds
+} = postsAdapter.getSelectors(state => state.posts)
+
+````
+
+</details>
+
+### 6. Accessible Forms for Better Performance
+
+**Optimized Form Architecture**
+
+<details>
+<summary>📝 View accessible form implementation</summary>
+```jsx
+// Accessible and performant form implementation
+import React, { useState, useCallback, useMemo, useId } from 'react'
+
+const OptimizedForm = ({ onSubmit, initialData = {} }) => {
+  const [formData, setFormData] = useState(initialData)
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
+
+  const formId = useId()
+
+  // Memoized validation to prevent unnecessary re-computation
+  const validationRules = useMemo(() => ({
+    email: {
+      required: true,
+      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: 'Please enter a valid email address'
+    },
+    password: {
+      required: true,
+      minLength: 8,
+      message: 'Password must be at least 8 characters'
+    },
+    confirmPassword: {
+      required: true,
+      match: 'password',
+      message: 'Passwords must match'
+    }
+  }), [])
+
+  // Debounced validation to reduce computation
+  const validateField = useCallback((name, value) => {
+    const rule = validationRules[name]
+    if (!rule) return ''
+
+    if (rule.required && !value) {
+      return `${name} is required`
+    }
+
+    if (rule.pattern && !rule.pattern.test(value)) {
+      return rule.message
+    }
+
+    if (rule.minLength && value.length < rule.minLength) {
+      return rule.message
+    }
+
+    if (rule.match && value !== formData[rule.match]) {
+      return rule.message
+    }
+
+    return ''
+  }, [validationRules, formData])
+
+  // Optimized field update with minimal re-renders
+  const updateField = useCallback((name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }))
+
+    // Only validate if field has been touched
+    if (touched[name]) {
+      const error = validateField(name, value)
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }, [touched, validateField])
+
+  const handleBlur = useCallback((name) => {
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, formData[name])
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }, [formData, validateField])
+
+  // Memoized field components to prevent unnecessary re-renders
+  const FormField = useMemo(() => {
+    return React.memo(({
+      name,
+      label,
+      type = 'text',
+      required = false,
+      autoComplete,
+      ...props
+    }) => {
+      const fieldId = `${formId}-${name}`
+      const errorId = `${fieldId}-error`
+      const hasError = touched[name] && errors[name]
+
+      return (
+        <div className="form-field">
+          <label htmlFor={fieldId} className="form-label">
+            {label}
+            {required && <span aria-label="required" className="required">*</span>}
+          </label>
+
+          <input
+            id={fieldId}
+            name={name}
+            type={type}
+            value={formData[name] || ''}
+            onChange={(e) => updateField(name, e.target.value)}
+            onBlur={() => handleBlur(name)}
+            aria-invalid={hasError}
+            aria-describedby={hasError ? errorId : undefined}
+            autoComplete={autoComplete}
+            className={`form-input ${hasError ? 'error' : ''}`}
+            {...props}
+          />
+
+          {hasError && (
+            <div
+              id={errorId}
+              className="form-error"
+              role="alert"
+              aria-live="polite"
+            >
+              {errors[name]}
+            </div>
+          )}
+        </div>
+      )
+    })
+  }, [formId, formData, errors, touched, updateField, handleBlur])
+
+  return (
+    <form onSubmit={onSubmit} noValidate>
+      <fieldset>
+        <legend>User Registration</legend>
+
+        <FormField
+          name="email"
+          label="Email Address"
+          type="email"
+          required
+          autoComplete="email"
+        />
+
+        <FormField
+          name="password"
+          label="Password"
+          type="password"
+          required
+          autoComplete="new-password"
+        />
+
+        <FormField
+          name="confirmPassword"
+          label="Confirm Password"
+          type="password"
+          required
+          autoComplete="new-password"
+        />
+      </fieldset>
+
+      <button type="submit" className="submit-button">
+        Register
+      </button>
+    </form>
+  )
+}
+````
+
+</details>
+
+### 7. Virtual Scrolling for Large Lists
 
 **Optimized List Rendering**
+
+<details>
+<summary>📋 View virtual scrolling implementation</summary>
 
 ```jsx
 import React, { useState, useMemo, useCallback } from 'react'
@@ -847,11 +1188,767 @@ const DynamicList = ({ items }) => {
 }
 ```
 
+</details>
+
+## 🎯 Strategic Loading Patterns
+
+### 1. Load on Navigation (Route Preloading)
+
+**Preload Resources When User Hovers Links**
+
+<details>
+<summary>🚀 View route preloading implementation</summary>
+```javascript
+// Intelligent route preloading system
+class RoutePreloader {
+  constructor() {
+    this.preloadedRoutes = new Set()
+    this.preloadCache = new Map()
+    this.hoverTimer = null
+    this.init()
+  }
+
+init() {
+this.setupLinkHoverPreloading()
+this.setupRouteBasedPreloading()
+this.setupPrefetchOnIdle()
+}
+
+setupLinkHoverPreloading() {
+document.addEventListener('mouseover', (event) => {
+const link = event.target.closest('a[href]')
+if (!link || !this.isInternalLink(link.href)) return
+
+      // Delay preloading slightly to avoid preloading on quick mouse movements
+      clearTimeout(this.hoverTimer)
+      this.hoverTimer = setTimeout(() => {
+        this.preloadRoute(link.href)
+      }, 100)
+    })
+
+    // Cancel preloading if mouse leaves quickly
+    document.addEventListener('mouseout', (event) => {
+      const link = event.target.closest('a[href]')
+      if (link) {
+        clearTimeout(this.hoverTimer)
+      }
+    })
+
+}
+
+async preloadRoute(href) {
+if (this.preloadedRoutes.has(href)) return
+
+    try {
+      this.preloadedRoutes.add(href)
+
+      // Preload route component
+      const routeModule = await this.getRouteModule(href)
+
+      // Preload route data
+      const routeData = await this.getRouteData(href)
+
+      // Cache for instant loading
+      this.preloadCache.set(href, {
+        component: routeModule,
+        data: routeData,
+        timestamp: Date.now()
+      })
+
+      console.log(`Preloaded route: ${href}`)
+    } catch (error) {
+      console.warn(`Failed to preload route: ${href}`, error)
+      this.preloadedRoutes.delete(href)
+    }
+
+}
+
+async getRouteModule(href) {
+const routeMap = {
+'/dashboard': () => import('../pages/Dashboard'),
+'/profile': () => import('../pages/Profile'),
+'/settings': () => import('../pages/Settings'),
+'/products': () => import('../pages/Products')
+}
+
+    const route = new URL(href).pathname
+    const moduleLoader = routeMap[route]
+
+    if (moduleLoader) {
+      return await moduleLoader()
+    }
+
+    return null
+
+}
+
+async getRouteData(href) {
+const route = new URL(href).pathname
+const dataEndpoints = {
+'/dashboard': '/api/dashboard-data',
+'/profile': '/api/user-profile',
+'/products': '/api/products'
+}
+
+    const endpoint = dataEndpoints[route]
+    if (endpoint) {
+      const response = await fetch(endpoint)
+      return response.json()
+    }
+
+    return null
+
+}
+
+setupRouteBasedPreloading() {
+// Preload likely next routes based on current route
+const currentPath = window.location.pathname
+const preloadStrategies = {
+'/': ['/products', '/dashboard'], // From home, likely to go to products or dashboard
+'/products': ['/products/[id]', '/cart'], // From products to product detail or cart
+'/cart': ['/checkout', '/products'], // From cart to checkout or back to products
+'/checkout': ['/order-confirmation'] // From checkout to confirmation
+}
+
+    const routesToPreload = preloadStrategies[currentPath]
+    if (routesToPreload) {
+      // Preload after a delay to not impact initial page load
+      setTimeout(() => {
+        routesToPreload.forEach(route => this.preloadRoute(route))
+      }, 2000)
+    }
+
+}
+
+setupPrefetchOnIdle() {
+// Use requestIdleCallback to preload during browser idle time
+if ('requestIdleCallback' in window) {
+requestIdleCallback(() => {
+this.preloadCriticalRoutes()
+})
+} else {
+// Fallback for browsers without requestIdleCallback
+setTimeout(() => {
+this.preloadCriticalRoutes()
+}, 3000)
+}
+}
+
+preloadCriticalRoutes() {
+const criticalRoutes = ['/products', '/dashboard', '/profile']
+criticalRoutes.forEach(route => this.preloadRoute(route))
+}
+
+isInternalLink(href) {
+try {
+const url = new URL(href)
+return url.origin === window.location.origin
+} catch {
+return false
+}
+}
+
+// Get preloaded data for instant navigation
+getPreloadedData(href) {
+const cached = this.preloadCache.get(href)
+if (cached && Date.now() - cached.timestamp < 300000) { // 5 minute cache
+return cached
+}
+return null
+}
+}
+
+// Initialize route preloader
+const routePreloader = new RoutePreloader()
+
+// React Router integration
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+const usePreloadedNavigation = () => {
+const navigate = useNavigate()
+
+const navigateWithPreload = useCallback((to) => {
+const preloaded = routePreloader.getPreloadedData(to)
+if (preloaded) {
+// Use preloaded data for instant navigation
+navigate(to, { state: { preloadedData: preloaded.data } })
+} else {
+navigate(to)
+}
+}, [navigate])
+
+return navigateWithPreload
+}
+
+````
+
+</details>
+
+### 2. Load on Interaction (Lazy Feature Loading)
+
+**Load Heavy Components Only When User Interacts**
+
+<details>
+<summary>🎭 View interaction-based loading patterns</summary>
+```javascript
+// Interaction-based lazy loading
+class InteractionLoader {
+  constructor() {
+    this.loadedModules = new Map()
+    this.loadingPromises = new Map()
+    this.init()
+  }
+
+  init() {
+    this.setupModalLoading()
+    this.setupVideoLoading()
+    this.setupChatWidgetLoading()
+    this.setupAdvancedFeatures()
+  }
+
+  setupModalLoading() {
+    // Load modal components only when modal buttons are clicked
+    document.addEventListener('click', async (event) => {
+      const modalTrigger = event.target.closest('[data-modal]')
+      if (!modalTrigger) return
+
+      const modalType = modalTrigger.dataset.modal
+
+      try {
+        // Show loading state
+        this.showModalLoading(modalTrigger)
+
+        // Load modal component
+        const modalComponent = await this.loadModal(modalType)
+
+        // Initialize and show modal
+        modalComponent.show(modalTrigger.dataset)
+      } catch (error) {
+        console.error(`Failed to load modal: ${modalType}`, error)
+        this.showModalError(modalTrigger)
+      }
+    })
+  }
+
+  async loadModal(modalType) {
+    if (this.loadedModules.has(modalType)) {
+      return this.loadedModules.get(modalType)
+    }
+
+    if (this.loadingPromises.has(modalType)) {
+      return this.loadingPromises.get(modalType)
+    }
+
+    const loadingPromise = this.importModal(modalType)
+    this.loadingPromises.set(modalType, loadingPromise)
+
+    try {
+      const module = await loadingPromise
+      this.loadedModules.set(modalType, module.default)
+      this.loadingPromises.delete(modalType)
+      return module.default
+    } catch (error) {
+      this.loadingPromises.delete(modalType)
+      throw error
+    }
+  }
+
+  importModal(modalType) {
+    const modalMap = {
+      'image-gallery': () => import('../components/modals/ImageGalleryModal'),
+      'video-player': () => import('../components/modals/VideoPlayerModal'),
+      'contact-form': () => import('../components/modals/ContactFormModal'),
+      'product-preview': () => import('../components/modals/ProductPreviewModal')
+    }
+
+    const moduleLoader = modalMap[modalType]
+    if (!moduleLoader) {
+      throw new Error(`Unknown modal type: ${modalType}`)
+    }
+
+    return moduleLoader()
+  }
+
+  setupVideoLoading() {
+    // Load video player only when play button is clicked
+    document.addEventListener('click', async (event) => {
+      const videoTrigger = event.target.closest('[data-video-src]')
+      if (!videoTrigger) return
+
+      event.preventDefault()
+
+      try {
+        const videoSrc = videoTrigger.dataset.videoSrc
+
+        // Load video player component
+        const VideoPlayer = await this.loadVideoPlayer()
+
+        // Replace thumbnail with video player
+        const playerContainer = document.createElement('div')
+        videoTrigger.parentNode.replaceChild(playerContainer, videoTrigger)
+
+        // Initialize video player
+        new VideoPlayer(playerContainer, {
+          src: videoSrc,
+          autoplay: true,
+          controls: true
+        })
+      } catch (error) {
+        console.error('Failed to load video player', error)
+      }
+    })
+  }
+
+  async loadVideoPlayer() {
+    if (this.loadedModules.has('video-player')) {
+      return this.loadedModules.get('video-player')
+    }
+
+    const module = await import('../components/VideoPlayer')
+    this.loadedModules.set('video-player', module.default)
+    return module.default
+  }
+
+  setupChatWidgetLoading() {
+    // Load chat widget when user shows intent to contact
+    const chatTriggers = [
+      '[data-chat-trigger]',
+      '.contact-button',
+      '.help-button'
+    ]
+
+    chatTriggers.forEach(selector => {
+      document.addEventListener('click', async (event) => {
+        if (!event.target.closest(selector)) return
+
+        event.preventDefault()
+        await this.loadChatWidget()
+      })
+    })
+
+    // Also load on scroll to bottom (user might need help)
+    let chatLoadTriggered = false
+    window.addEventListener('scroll', () => {
+      if (chatLoadTriggered) return
+
+      const scrollPercent = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight
+      if (scrollPercent > 0.8) {
+        chatLoadTriggered = true
+        this.loadChatWidget()
+      }
+    })
+  }
+
+  async loadChatWidget() {
+    if (this.loadedModules.has('chat-widget')) {
+      return this.loadedModules.get('chat-widget').show()
+    }
+
+    try {
+      const module = await import('../components/ChatWidget')
+      const chatWidget = new module.default()
+      this.loadedModules.set('chat-widget', chatWidget)
+      chatWidget.show()
+    } catch (error) {
+      console.error('Failed to load chat widget', error)
+    }
+  }
+
+  showModalLoading(trigger) {
+    trigger.disabled = true
+    trigger.innerHTML = '<span class="loading-spinner"></span> Loading...'
+  }
+
+  showModalError(trigger) {
+    trigger.disabled = false
+    trigger.innerHTML = 'Error loading. Try again.'
+    setTimeout(() => {
+      trigger.innerHTML = trigger.dataset.originalText || 'Open Modal'
+    }, 3000)
+  }
+}
+
+// React implementation for interaction-based loading
+const LazyFeatureLoader = ({ children, feature, fallback }) => {
+  const [Component, setComponent] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const loadFeature = useCallback(async () => {
+    if (Component || loading) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const module = await import(`../features/${feature}`)
+      setComponent(() => module.default)
+    } catch (err) {
+      setError(err)
+      console.error(`Failed to load feature: ${feature}`, err)
+    } finally {
+      setLoading(false)
+    }
+  }, [feature, Component, loading])
+
+  if (error) {
+    return <div>Failed to load feature. <button onClick={loadFeature}>Retry</button></div>
+  }
+
+  if (loading) {
+    return fallback || <div>Loading feature...</div>
+  }
+
+  if (Component) {
+    return <Component />
+  }
+
+  return (
+    <div onClick={loadFeature}>
+      {children}
+    </div>
+  )
+}
+
+// Usage
+const App = () => (
+  <div>
+    <LazyFeatureLoader feature="AdvancedSearch" fallback={<SearchSkeleton />}>
+      <button>Open Advanced Search</button>
+    </LazyFeatureLoader>
+
+    <LazyFeatureLoader feature="DataVisualization">
+      <button>View Analytics Dashboard</button>
+    </LazyFeatureLoader>
+  </div>
+)
+````
+
+</details>
+
+### 3. Load on Visibility (Intersection Observer)
+
+**Load Content When Elements Become Visible**
+
+<details>
+<summary>👁️ View visibility-based loading implementation</summary>
+```javascript
+// Advanced visibility-based loading
+class VisibilityLoader {
+  constructor(options = {}) {
+    this.defaultOptions = {
+      rootMargin: '50px 0px',
+      threshold: 0.1,
+      loadDelay: 100,
+      ...options
+    }
+    
+    this.observers = new Map()
+    this.loadedElements = new WeakSet()
+    this.init()
+  }
+
+init() {
+this.setupImageLoading()
+this.setupComponentLoading()
+this.setupContentLoading()
+this.setupAnimationLoading()
+}
+
+createObserver(callback, options = {}) {
+const observerOptions = { ...this.defaultOptions, ...options }
+
+    return new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !this.loadedElements.has(entry.target)) {
+          this.loadedElements.add(entry.target)
+
+          // Add delay to prevent loading during fast scrolling
+          setTimeout(() => {
+            if (this.loadedElements.has(entry.target)) {
+              callback(entry.target, entry)
+            }
+          }, observerOptions.loadDelay)
+        }
+      })
+    }, observerOptions)
+
+}
+
+setupImageLoading() {
+const imageObserver = this.createObserver(this.loadImage.bind(this), {
+rootMargin: '100px 0px' // Start loading images 100px before they're visible
+})
+
+    // Observe all lazy images
+    document.querySelectorAll('img[data-src], [data-background-src]').forEach(img => {
+      imageObserver.observe(img)
+    })
+
+    // Observer for dynamically added images
+    const mutationObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1) { // Element node
+            const lazyImages = node.querySelectorAll?.('img[data-src], [data-background-src]')
+            lazyImages?.forEach(img => imageObserver.observe(img))
+          }
+        })
+      })
+    })
+
+    mutationObserver.observe(document.body, { childList: true, subtree: true })
+    this.observers.set('images', imageObserver)
+
+}
+
+async loadImage(img) {
+const src = img.dataset.src || img.dataset.backgroundSrc
+if (!src) return
+
+    try {
+      // Create a new image to preload
+      const imageLoader = new Image()
+
+      // Add loading class for CSS transitions
+      img.classList.add('loading')
+
+      await new Promise((resolve, reject) => {
+        imageLoader.onload = resolve
+        imageLoader.onerror = reject
+        imageLoader.src = src
+      })
+
+      // Apply the loaded image
+      if (img.dataset.src) {
+        img.src = src
+        img.removeAttribute('data-src')
+      } else if (img.dataset.backgroundSrc) {
+        img.style.backgroundImage = `url(${src})`
+        img.removeAttribute('data-background-src')
+      }
+
+      // Trigger fade-in animation
+      img.classList.remove('loading')
+      img.classList.add('loaded')
+
+    } catch (error) {
+      console.error('Failed to load image:', src, error)
+      img.classList.remove('loading')
+      img.classList.add('error')
+    }
+
+}
+
+setupComponentLoading() {
+const componentObserver = this.createObserver(this.loadComponent.bind(this), {
+rootMargin: '200px 0px' // Load components 200px before visibility
+})
+
+    document.querySelectorAll('[data-lazy-component]').forEach(element => {
+      componentObserver.observe(element)
+    })
+
+    this.observers.set('components', componentObserver)
+
+}
+
+async loadComponent(element) {
+const componentName = element.dataset.lazyComponent
+const componentProps = JSON.parse(element.dataset.componentProps || '{}')
+
+    try {
+      // Show loading state
+      element.innerHTML = this.getLoadingSkeleton(componentName)
+
+      // Dynamic import based on component name
+      const module = await import(`../components/lazy/${componentName}`)
+      const Component = module.default
+
+      // If it's a React component, we need a different approach
+      if (typeof Component === 'function') {
+        // For vanilla JS or web components
+        const instance = new Component(element, componentProps)
+        instance.render()
+      } else {
+        // For other types of components
+        element.innerHTML = Component.render(componentProps)
+      }
+
+      element.classList.add('component-loaded')
+    } catch (error) {
+      console.error(`Failed to load component: ${componentName}`, error)
+      element.innerHTML = `<div class="error">Failed to load ${componentName}</div>`
+    }
+
+}
+
+setupContentLoading() {
+const contentObserver = this.createObserver(this.loadContent.bind(this))
+
+    document.querySelectorAll('[data-lazy-content]').forEach(element => {
+      contentObserver.observe(element)
+    })
+
+    this.observers.set('content', contentObserver)
+
+}
+
+async loadContent(element) {
+const contentUrl = element.dataset.lazyContent
+const contentType = element.dataset.contentType || 'html'
+
+    try {
+      element.classList.add('loading-content')
+
+      const response = await fetch(contentUrl)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+      let content
+      switch (contentType) {
+        case 'json':
+          content = await response.json()
+          element.innerHTML = this.renderJsonContent(content)
+          break
+        case 'markdown':
+          const markdown = await response.text()
+          content = await this.parseMarkdown(markdown)
+          element.innerHTML = content
+          break
+        default:
+          content = await response.text()
+          element.innerHTML = content
+      }
+
+      element.classList.remove('loading-content')
+      element.classList.add('content-loaded')
+    } catch (error) {
+      console.error(`Failed to load content: ${contentUrl}`, error)
+      element.innerHTML = '<div class="error">Failed to load content</div>'
+      element.classList.remove('loading-content')
+    }
+
+}
+
+setupAnimationLoading() {
+const animationObserver = this.createObserver(this.triggerAnimation.bind(this), {
+threshold: 0.3 // Trigger when 30% visible
+})
+
+    document.querySelectorAll('[data-animate-on-scroll]').forEach(element => {
+      animationObserver.observe(element)
+    })
+
+    this.observers.set('animations', animationObserver)
+
+}
+
+triggerAnimation(element) {
+const animationType = element.dataset.animateOnScroll
+const delay = parseInt(element.dataset.animationDelay || '0')
+
+    setTimeout(() => {
+      element.classList.add('animate', `animate-${animationType}`)
+
+      // Remove observer after animation to prevent re-triggering
+      this.observers.get('animations')?.unobserve(element)
+    }, delay)
+
+}
+
+getLoadingSkeleton(componentName) {
+const skeletons = {
+'ProductGrid': '<div class="skeleton-grid"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>',
+'UserProfile': '<div class="skeleton-profile"><div class="skeleton-avatar"></div><div class="skeleton-text"></div></div>',
+'Chart': '<div class="skeleton-chart"><div class="skeleton-bars"></div></div>',
+default: '<div class="skeleton-box"></div>'
+}
+
+    return skeletons[componentName] || skeletons.default
+
+}
+
+async parseMarkdown(markdown) {
+// Simple markdown parser or import a library
+const { marked } = await import('marked')
+return marked(markdown)
+}
+
+renderJsonContent(data) {
+// Render JSON data as HTML
+if (Array.isArray(data)) {
+return `<ul>${data.map(item => `<li>${JSON.stringify(item)}</li>`).join('')}</ul>`
+    }
+    return `<pre>${JSON.stringify(data, null, 2)}</pre>`
+}
+
+// Cleanup method
+destroy() {
+this.observers.forEach(observer => observer.disconnect())
+this.observers.clear()
+}
+}
+
+// React hook for visibility-based loading
+const useVisibilityLoader = (ref, callback, options = {}) => {
+useEffect(() => {
+const element = ref.current
+if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          callback(entry)
+          observer.unobserve(element)
+        }
+      },
+      {
+        rootMargin: '50px 0px',
+        threshold: 0.1,
+        ...options
+      }
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+
+}, [ref, callback, options])
+}
+
+// React component for lazy loading content sections
+const LazySection = ({ children, fallback, onVisible }) => {
+const [isVisible, setIsVisible] = useState(false)
+const sectionRef = useRef()
+
+useVisibilityLoader(sectionRef, () => {
+setIsVisible(true)
+onVisible?.()
+})
+
+return (
+<div ref={sectionRef}>
+{isVisible ? children : (fallback || <div className="section-placeholder" />)}
+</div>
+)
+}
+
+// Initialize visibility loader
+const visibilityLoader = new VisibilityLoader()
+
+````
+
+</details>
+
 ## 🌐 Advanced Performance Strategies
 
 ### 1. Service Worker Implementation
 
 **Comprehensive Caching Strategy**
+
+<details>
+<summary>🔧 View service worker caching implementation</summary>
 
 ```javascript
 // sw.js - Service Worker with advanced caching
@@ -991,11 +2088,16 @@ async function handleStaticRequest(request) {
     throw error
   }
 }
-```
+````
+
+</details>
 
 ### 2. Progressive Web App Features
 
 **App Shell Architecture**
+
+<details>
+<summary>🏗️ View PWA app shell implementation</summary>
 
 ```javascript
 // Progressive loading strategy
@@ -1090,9 +2192,14 @@ class AppShell {
 new AppShell()
 ```
 
+</details>
+
 ### 3. Advanced Monitoring and Analytics
 
 **Real User Monitoring (RUM)**
+
+<details>
+<summary>📈 View comprehensive RUM implementation</summary>
 
 ```javascript
 // Comprehensive performance monitoring
@@ -1246,9 +2353,14 @@ class RealUserMonitoring {
 new RealUserMonitoring()
 ```
 
+</details>
+
 ## 📊 Performance Testing and Measurement
 
 ### Automated Performance Testing
+
+<details>
+<summary>🧪 View Lighthouse CI configuration</summary>
 
 ```javascript
 // Performance testing with Lighthouse CI
@@ -1286,7 +2398,12 @@ module.exports = {
 }
 ```
 
+</details>
+
 ### Performance Budget Configuration
+
+<details>
+<summary>📐 View performance budget implementation</summary>
 
 ```javascript
 // webpack.config.js - Performance budgets
@@ -1377,6 +2494,8 @@ results.forEach((result) => {
 })
 ```
 
+</details>
+
 ## 🎯 Performance Optimization Checklist
 
 ### Loading Performance
@@ -1387,10 +2506,13 @@ results.forEach((result) => {
 - [ ] **Bundle optimization** - Tree shaking, minification, compression
 - [ ] **Caching strategy** - Service worker, HTTP caching, CDN
 - [ ] **Resource prioritization** - Critical resources first, preload key assets
+- [ ] **Strategic loading patterns** - Load on navigation, interaction, and visibility
 
 ### Runtime Performance
 
 - [ ] **React optimization** - memo, useMemo, useCallback
+- [ ] **Normalized state management** - Flat data structures for better performance
+- [ ] **Accessible forms** - Optimized validation and minimal re-renders
 - [ ] **Virtual scrolling** - For large lists and tables
 - [ ] **Debouncing/throttling** - For search and scroll events
 - [ ] **Memory management** - Cleanup event listeners, intervals
