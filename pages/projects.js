@@ -74,6 +74,25 @@ const companyProjects = [
 
 const personalProjects = [
   {
+    title: 'Magic Console Logger',
+    description:
+      'A powerful VSCode extension that supercharges debugging workflows with intelligent console.log generation, context-aware variable logging, and seamless developer productivity features.',
+    longDescription:
+      'Magic Console Logger is a VSCode extension designed to streamline the debugging process by automatically generating contextual console.log statements. It intelligently detects function context, variable names, and provides customizable logging templates with keyboard shortcuts for maximum developer efficiency.',
+    technologies: ['VSCode Extension', 'TypeScript', 'JavaScript', 'Developer Tools'],
+    link: 'https://marketplace.visualstudio.com/items?itemName=trunglq.magic-console-logger',
+    category: 'Developer Tools',
+    status: 'Completed',
+    role: 'Solo Developer',
+    highlights: [
+      'Context-aware console.log generation with function detection',
+      'Keyboard shortcuts for rapid log insertion and management',
+      'Bulk operations: comment, uncomment, and delete all logs',
+      'Smart variable name and value logging format',
+      'Support for JavaScript, TypeScript, and React (JSX/TSX)',
+    ],
+  },
+  {
     title: 'Any-2-QR',
     description:
       'Privacy-focused QR code generator that converts any link, text, or contact information into customizable QR codes with personal branding options.',
@@ -282,7 +301,7 @@ export default function Projects() {
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-3 gap-8 md:grid-cols-3">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">7+</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">8+</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Projects</div>
               </div>
               <div className="text-center">
@@ -292,7 +311,7 @@ export default function Projects() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">4</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">5</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Personal</div>
               </div>
             </div>
