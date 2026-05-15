@@ -1,0 +1,61 @@
+---
+title: 'AI Pair Programming: Beyond the Hype'
+date: '2025-09-06'
+tags: ['AI', 'Productivity', 'Engineering', 'Career']
+draft: false
+summary: 'How to integrate AI coding assistants into a real workflow without outsourcing judgment—or shipping faster bugs.'
+layout: PostLayout
+images: []
+---
+
+September 2025 is the year AI pair programming stopped being a demo and became a daily habit for many teams. The tools are impressive, but the teams that win treat AI as a **junior pair with infinite stamina**, not a replacement for engineering judgment.
+
+## What changed this year
+
+- **IDE-native agents** moved from chat sidebars into the edit loop: multi-file refactors, test generation, and repo-aware context are table stakes.
+- **Review fatigue** is real: PRs are larger, and reviewers spend more time verifying intent than syntax.
+- **Skill shift**: the bottleneck moved from typing speed to **spec clarity**, test design, and architectural boundaries.
+
+## A workflow that actually scales
+
+### 1. Write the contract first
+
+Before asking an assistant to implement, define:
+
+- Inputs, outputs, and error cases
+- Performance or security constraints
+- What must **not** change (public APIs, migrations, auth paths)
+
+```typescript
+// Good prompt anchor: behavior + constraints
+// POST /api/orders — idempotent, 409 on duplicate clientOrderId
+// Must not log PII; use existing OrderRepository
+```
+
+### 2. Use AI for drafts, humans for edges
+
+| Task              | AI-friendly | Human-owned |
+| ----------------- | ----------- | ----------- |
+| Boilerplate CRUD  | ✓           |             |
+| Auth / payments   |             | ✓           |
+| Regex and parsers | ✓ (verify)  | ✓           |
+| Incident hotfixes |             | ✓           |
+| Test scaffolding  | ✓           | Edge cases  |
+
+### 3. Verify with tests, not vibes
+
+If the assistant cannot produce a failing test that proves the bug, treat the fix as unproven. **Red → green → refactor** still applies.
+
+## Anti-patterns to avoid
+
+- **Vibe-driven merges**: “It looks right” is not a review strategy.
+- **Context dumping**: pasting entire files without stating the goal increases hallucinated APIs.
+- **Silent dependency upgrades**: always diff `package.json` and lockfiles.
+
+## Self-improvement angle
+
+Track one metric for two weeks: **time from ticket to first green test**, not lines generated. Engineers who learn to write better prompts are really learning to write better specs—and that compounds for years.
+
+## Bottom line
+
+AI pair programming pays off when you optimize for **correctness per minute**, not characters per second. Keep ownership of architecture, security, and production behavior; let the machine handle the tedious middle.

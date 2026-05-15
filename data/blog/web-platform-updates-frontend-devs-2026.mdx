@@ -1,0 +1,53 @@
+---
+title: 'Web Platform Updates Every Frontend Dev Should Know (2026)'
+date: '2026-03-15'
+tags: ['Frontend', 'Web Platform', 'CSS', 'JavaScript', 'Performance']
+draft: false
+summary: 'A spring 2026 roundup: container queries in production, view transitions, improved observability APIs, and what to adopt vs. wait on.'
+layout: PostLayout
+images: []
+---
+
+The web platform’s pace did not slow in early 2026. Browsers shipped features that used to require heavy libraries. Here is a practical roundup for shipping teams—not a spec wishlist.
+
+## CSS layout & styling
+
+- **Container queries** — component-responsive layouts without global breakpoints; pair with `@container` naming in design systems.
+- **`:has()`** — parent selection for form validation states and card layouts; test fallback for older embedded WebViews.
+- **Subgrid** — align nested grids to parent tracks; useful for dashboards and data tables.
+- **`color-mix()` & relative colors** — theme tokens that adapt in dark mode without duplicate palettes.
+
+## JavaScript & modules
+
+- **Import attributes** — clearer JSON/CSS module imports in bundler-less experiments.
+- **Temporal** (where available) — safer date math; polyfill strategy still required for mini programs and legacy WebViews.
+- **Pattern matching proposals** — watch status; do not bet production on stage-2 syntax.
+
+## Performance & UX
+
+- **View Transitions API** — SPA route changes with shared-element feel; guard with `prefers-reduced-motion`.
+- **Speculation Rules** — prerender/pr prefetch for marketing and doc sites; measure LCP and abandonment.
+- **INP over FID** — optimize interaction latency; audit third-party scripts first.
+
+## Observability in the browser
+
+- **Long Animation Frame API** — find jank beyond classic Long Tasks.
+- **Server Timing + RUM** — connect CDN, API, and client in one waterfall narrative.
+
+## Adoption matrix
+
+| Feature                            | Adopt now     | Wait                         |
+| ---------------------------------- | ------------- | ---------------------------- |
+| Container queries                  | ✓             |                              |
+| View transitions (marketing sites) | ✓             |                              |
+| Subgrid (internal apps)            | ✓             |                              |
+| Speculation rules                  | Measure first | Blind enable                 |
+| Bleeding-edge JS syntax            |               | ✓ until browsers you support |
+
+## Mini program & embedded WebView caveat
+
+If you ship **WeChat Mini Programs** or in-app WebViews, verify support tables separately. The open web moves faster than embedded runtimes—plan progressive enhancement, not parity day one.
+
+## Action item
+
+Pick **one** platform feature this sprint and delete a library dependency it replaces. That is how teams stay fast without chasing every release note.

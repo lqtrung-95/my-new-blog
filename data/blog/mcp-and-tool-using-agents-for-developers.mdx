@@ -1,0 +1,59 @@
+---
+title: 'MCP and Tool-Using Agents: What Developers Should Know'
+date: '2025-10-14'
+tags: ['AI', 'MCP', 'Developer Tools', 'Architecture']
+draft: false
+summary: 'Model Context Protocol is turning IDEs into orchestration layers. Here is how MCP works and how to use it without leaking secrets or trust.'
+layout: PostLayout
+images: []
+---
+
+By late 2025, **tool-using agents** are no longer a research curiosity—they are wired into editors, CI bots, and internal platforms. The **Model Context Protocol (MCP)** has emerged as a common way to expose databases, docs, and APIs to models in a structured, auditable way.
+
+## MCP in one picture
+
+```
+┌─────────────┐     JSON-RPC      ┌─────────────┐
+│  AI Client  │ ◄──────────────► │ MCP Server  │
+│  (IDE/CLI)  │   tools/resources │ (your svc)  │
+└─────────────┘                   └──────┬──────┘
+                                         │
+                    Git · Jira · DB · Browser · Custom APIs
+```
+
+The client discovers **tools** (actions), **resources** (read-only context), and sometimes **prompts** (templates). The model chooses tools; the server enforces auth and scopes.
+
+## Why teams adopt it
+
+- **Composable context**: swap “search Confluence” for “query prod read replica” without retraining users.
+- **Security boundary**: secrets stay on the server; the model sees only tool results.
+- **Versioned contracts**: tool schemas are explicit—easier to test than ad-hoc shell access.
+
+## Design guidelines for internal MCP servers
+
+1. **Least privilege** — read-only by default; destructive tools need confirmation hooks.
+2. **Idempotent reads** — `get_issue`, not `delete_issue` in v1.
+3. **Structured errors** — return codes the model can reason about.
+4. **Rate limits** — agents loop; protect downstream systems.
+5. **Audit logs** — who invoked which tool, when.
+
+## Risks to take seriously
+
+| Risk                      | Mitigation                                                    |
+| ------------------------- | ------------------------------------------------------------- |
+| Prompt injection via docs | Sanitize HTML; separate user content from system instructions |
+| Secret exfiltration       | Never pass tokens through model context                       |
+| Runaway tool loops        | Max steps, budgets, human approval for writes                 |
+| Stale context             | TTL on resources; show “as of” timestamps                     |
+
+## Practical starter kit
+
+- One **read** tool: search internal docs.
+- One **write** tool: create draft PR comment (not merge).
+- One **resource**: service catalog page for the repo you are in.
+
+Ship small, observe failure modes, then expand.
+
+## For your career
+
+Understanding MCP is understanding **how software will be operated** in the next decade: humans set intent, agents execute bounded tools, platforms enforce policy. That is a valuable specialization whether you build servers or consume them.

@@ -74,6 +74,23 @@ const companyProjects = [
 
 const personalProjects = [
   {
+    title: 'Effortful',
+    description:
+      'Full-stack productivity SaaS at effortful.app — Pomodoro focus sessions, streak and goal tracking, AI-powered insights, and subscription billing via Polar.',
+    longDescription:
+      'Built with Next.js, TypeScript, and Supabase. Effortful helps you stay focused and build consistent habits with lightweight coaching and clear progress over time.',
+    technologies: ['Next.js', 'TypeScript', 'Supabase', 'Polar', 'AI'],
+    link: 'https://effortful.app',
+    category: 'Productivity SaaS',
+    status: 'Production',
+    role: 'Solo Developer',
+    highlights: [
+      'Pomodoro focus sessions with streak and goal tracking',
+      'AI-powered insights and coaching',
+      'Subscription billing via Polar',
+    ],
+  },
+  {
     title: 'Magic Console Logger',
     description:
       'A powerful VSCode extension that supercharges debugging workflows with intelligent console.log generation, context-aware variable logging, and seamless developer productivity features.',
@@ -301,7 +318,7 @@ export default function Projects() {
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-3 gap-8 md:grid-cols-3">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">8+</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">9+</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Projects</div>
               </div>
               <div className="text-center">
@@ -311,7 +328,7 @@ export default function Projects() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">5</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">6</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Personal</div>
               </div>
             </div>

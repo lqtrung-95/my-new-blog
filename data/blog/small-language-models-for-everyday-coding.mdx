@@ -1,0 +1,57 @@
+---
+title: 'Small Language Models for Everyday Coding'
+date: '2026-01-12'
+tags: ['AI', 'Engineering', 'Productivity', 'Local AI']
+draft: false
+summary: 'Frontier models are not always the right tool. When smaller, faster models win for autocomplete, privacy, and cost—and how to evaluate them.'
+layout: PostLayout
+images: []
+---
+
+January 2026 brought a clearer split: **frontier models** for hard reasoning, **small models** for high-volume, low-latency tasks. Teams that match model size to the job save money and often ship faster.
+
+## When small models win
+
+| Use case           | Why small works                             |
+| ------------------ | ------------------------------------------- |
+| Inline completion  | Latency &lt; 200ms matters more than genius |
+| Lint explanations  | Pattern-bound, short context                |
+| Log summarization  | Structured input, bounded output            |
+| PII-sensitive code | On-prem or air-gapped inference             |
+| CI triage          | High volume; “good enough” ranking          |
+
+## When to reach for frontier
+
+- Cross-file refactors with subtle invariants
+- Security review of auth flows
+- Novel architecture under ambiguous requirements
+- Teaching complex concepts with nuance
+
+## Evaluation rubric (your repo, your stack)
+
+Run the same 20 prompts across models:
+
+1. **Correctness** — compiles / tests pass without edits
+2. **Edit distance** — how much you changed the suggestion
+3. **Latency p95** — IDE feel
+4. **Cost per 1k suggestions** — finance will ask
+
+Track a simple scorecard spreadsheet; refresh quarterly.
+
+## Local vs. hosted small models
+
+**Local pros**: privacy, offline, predictable cost at scale  
+**Local cons**: GPU ops, model updates, weaker on niche frameworks
+
+**Hosted pros**: zero ops, easy A/B  
+**Hosted cons**: data policy review, variable pricing
+
+Hybrid is common: local for completions, cloud for chat on non-sensitive repos.
+
+## Security reminder
+
+Smaller does not mean safer. **Prompt injection** and **secret leakage** apply to every tier. Keep secrets out of context; scan suggestions before commit.
+
+## Career angle
+
+Teams need people who can **operate model stacks**, not just prompt ChatGPT. Learning quantization basics, eval harnesses, and routing (“cheap first, escalate if uncertain”) is a durable skill in 2026.

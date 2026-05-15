@@ -1,0 +1,61 @@
+---
+title: 'React Server Components: Practical Lessons One Year In'
+date: '2025-11-05'
+tags: ['React', 'Next.js', 'Frontend', 'Architecture']
+draft: false
+summary: 'RSC is powerful when the mental model clicks. Lessons from production apps on boundaries, caching, and what still belongs on the client.'
+layout: PostLayout
+images: []
+---
+
+React Server Components (RSC) are no longer experimental curiosities—they are the default path in modern React frameworks. A year of production use has produced **clear winners and sharp edges**.
+
+## Mental model (still the hard part)
+
+- **Server Components**: render on server, zero client JS for their logic, can fetch close to data.
+- **Client Components**: interactivity, browser APIs, state, effects—marked with `'use client'`.
+- **The boundary is a bundle contract**, not a stylistic choice.
+
+```
+app/
+  layout.tsx          ← Server (data + shell)
+  page.tsx            ← Server (fetch posts)
+  LikeButton.tsx      ← Client (onClick)
+```
+
+## What worked well
+
+- **Colocated data fetching** without waterfall client hooks
+- **Smaller client bundles** when islands of interactivity are small
+- **Streaming UI** for slow backends—perceived performance wins
+
+## What hurt teams
+
+| Pain                       | Cause                  | Fix                                                    |
+| -------------------------- | ---------------------- | ------------------------------------------------------ |
+| “Cannot pass X to Client”  | Non-serializable props | DTOs; fetch on client if needed                        |
+| Stale UI                   | Aggressive caching     | Revalidate tags, `cache: 'no-store'` where appropriate |
+| Debug confusion            | Split stacks           | Logging on server; React DevTools on client only       |
+| Over-fetching in RSC trees | Giant server trees     | Split routes; parallel routes sparingly                |
+
+## Decision checklist
+
+Put on the **server** when:
+
+- No user event handlers in that subtree
+- Data is trusted and can stay on server
+- SEO or TTFB matters
+
+Put on the **client** when:
+
+- Real-time updates, drag-drop, media APIs
+- Heavy charting or WebGL
+- Offline or optimistic UX
+
+## Performance note
+
+RSC does not replace **good caching policy**. Treat `fetch` cache, CDN headers, and database indexes as one system. Server rendering a slow query is still slow—it just hides the spinner differently.
+
+## Learning investment
+
+If you maintain a Next.js or React Router RSC app, spend one sprint documenting **your team’s boundary rules** in a short ADR. Future you will thank present you when the fifteenth “use client at the root” PR appears.

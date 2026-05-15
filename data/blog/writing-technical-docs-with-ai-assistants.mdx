@@ -1,0 +1,54 @@
+---
+title: 'Writing Technical Docs With AI Assistants (Without the Slop)'
+date: '2025-11-28'
+tags: ['AI', 'Documentation', 'Communication', 'Engineering']
+draft: false
+summary: 'AI can draft docs fast—but only engineers can make them true. A workflow for accurate runbooks, ADRs, and onboarding guides.'
+layout: PostLayout
+images: []
+---
+
+Documentation debt grew for years; in 2025, teams tried to **pay it down with AI** in a weekend. Some succeeded; many shipped confident-sounding wrong docs. The fix is not “no AI”—it is **human-verified structure**.
+
+## Docs that AI helps with
+
+- First drafts from code comments and OpenAPI specs
+- Consistent tone across modules
+- Checklists and runbook skeletons
+- Changelog summaries from conventional commits
+
+## Docs that need human ownership
+
+- Incident response (on-call paths, escalation)
+- Security and compliance
+- Data retention and PII handling
+- “Why we chose X” in ADRs
+
+## The FACT workflow
+
+1. **Facts** — Paste source of truth: schema, config, metric names. No paraphrase yet.
+2. **Ask** — “Generate onboarding for service Y; list unknowns as `TODO`.”
+3. **Challenge** — Run the steps yourself; strike anything false.
+4. **Trace** — Link every claim to code, dashboard, or ticket.
+
+## Prompt pattern that reduces hallucinations
+
+```text
+You are documenting the payments service.
+Sources: [paste OpenAPI excerpt + link to repo path]
+Rules:
+- If not in sources, write UNKNOWN
+- Include verification command for each step
+- No invented env var names
+```
+
+## Quality bar (publish if all true)
+
+- [ ] A new hire can complete one task using only this doc
+- [ ] Commands were run in staging in the last 30 days
+- [ ] Owners and Slack channel are named
+- [ ] “Last verified” date is in the header
+
+## Self-improvement: writing is thinking
+
+Engineers who document well get **faster reviews and fewer incidents**. AI lowers the cost of the first draft; your judgment is what makes it durable. Block 45 minutes after each major feature for “doc or it didn’t ship.”
