@@ -167,6 +167,25 @@ const personalProjects = [
     ],
   },
   {
+    title: 'FrontEnd Coach',
+    description:
+      'Full-stack AI interview coach for frontend engineers with mock interviews, structured feedback, weaknesses tracking, and focused study plans.',
+    longDescription:
+      'FrontEnd Coach is a full-stack frontend interview coaching platform that delivers streaming mock interviews, senior-level answer evaluation, CV-grounded question generation, and technical weak-area coaching. It combines AI-powered practice, analytics, and spaced repetition study workflows for frontend interview readiness.',
+    technologies: ['Next.js', 'TypeScript', 'Supabase', 'AI', 'Polar', 'Tailwind CSS'],
+    link: 'https://frontendcoach.app/',
+    category: 'AI Interview Platform',
+    status: 'Production',
+    role: 'Solo Developer',
+    highlights: [
+      'Streaming mock interviews with follow-up questions and timed mode',
+      'Six-dimension scoring plus senior-level rewrite feedback',
+      'CV upload, parsing, and grounded interview generation',
+      'Weak-area coaching with dashboards, drill recommendations, and trend analytics',
+      'Spaced repetition study plan with 250+ questions and public learning resources',
+    ],
+  },
+  {
     title: 'Shot Mate',
     description:
       'Mobile photography assistant app that guides users through poses and compositions to capture stunning photos with professional-quality results.',
@@ -318,7 +337,7 @@ export default function Projects() {
           <div className="mx-auto max-w-4xl">
             <div className="grid grid-cols-3 gap-8 md:grid-cols-3">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">9+</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">10+</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Projects</div>
               </div>
               <div className="text-center">
@@ -328,7 +347,7 @@ export default function Projects() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">6</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">7</div>
                 <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Personal</div>
               </div>
             </div>
