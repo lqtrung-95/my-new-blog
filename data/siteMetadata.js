@@ -1,11 +1,11 @@
 const siteMetadata = {
-  title: 'Front of the Line',
+  title: 'lqtrung.dev',
   author: 'Trung Le',
-  headerTitle: 'Front of the Line',
-  description: 'Front of the Line: Front-End Development and Algorithmic Insights',
+  headerTitle: 'lqtrung.dev',
+  description: 'Front-End Development and Algorithmic Insights',
   language: 'en-us, vn',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://frontoftheline.me/',
+  siteUrl: 'https://lqtrung.dev',
   siteRepo: 'https://github.com/lqtrung-95/my-new-blog',
   siteLogo: '/static/images/logo.png',
   seoImage: 'https://trungle-storage.s3.ap-southeast-2.amazonaws.com/frontoftheline.png',
